@@ -30,6 +30,7 @@ lint = [
     "isort==7.0.0",
     "mypy==1.19.1",
     "pre-commit==4.5.1",
+    "pydantic==2.12.5",
     "ruff==0.14.13",
 ]
 test = [
