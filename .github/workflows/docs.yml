@@ -21,7 +21,7 @@ jobs:
         run: pip install -e .[docs]
 
       - name: Build docs
-        run: pdoc src/python_package_template/ -o docs
+        run: pdoc src/novu_framework/ -o docs
 
       - name: Deploy
         if: github.ref_name == 'master'

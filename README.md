@@ -1,10 +1,10 @@
-# python-package-template
+# novu-framework
 
-[![PyPI version](https://img.shields.io/pypi/v/python-package-template)](https://pypi.org/project/python-package-template/)
-[![codecov](https://codecov.io/gh/remarkablemark/python-package-template/graph/badge.svg?token=A5tAkYLEAw)](https://codecov.io/gh/remarkablemark/python-package-template)
-[![lint](https://github.com/remarkablemark/python-package-template/actions/workflows/lint.yml/badge.svg)](https://github.com/remarkablemark/python-package-template/actions/workflows/lint.yml)
+[![PyPI version](https://img.shields.io/pypi/v/novu-framework)](https://pypi.org/project/novu-framework/)
+[![codecov](https://codecov.io/gh/remarkablemark/novu-framework/graph/badge.svg?token=A5tAkYLEAw)](https://codecov.io/gh/remarkablemark/novu-framework)
+[![lint](https://github.com/remarkablemark/novu-framework/actions/workflows/lint.yml/badge.svg)](https://github.com/remarkablemark/novu-framework/actions/workflows/lint.yml)
 
-🐍 Python Package Template
+🚀 Novu Framework allows you to write notification workflows in your Python codebase.
 
 ## Prerequisites
 
@@ -15,7 +15,7 @@
 Install the package:
 
 ```sh
-pip install python-package-template
+pip install novu-framework
 ```
 
 ## Usage
@@ -23,11 +23,11 @@ pip install python-package-template
 Print the greeting:
 
 ```py
-from python_package_template import hello
+from novu_framework import hello
 
 print(hello())
 ```
 
 ## License
 
-[MIT](https://github.com/remarkablemark/python-package-template/blob/master/LICENSE)
+[MIT](https://github.com/remarkablemark/novu-framework/blob/master/LICENSE)

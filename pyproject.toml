@@ -1,10 +1,10 @@
 [project]
-name = "python-package-template"
+name = "novu-framework"
 version = "0.0.0"
 authors = [
     { name="Mark", email="mark@remarkablemark.org" },
 ]
-description = "Python Package Template"
+description = "Novu Framework allows you to write notification workflows in your codebase."
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
@@ -35,8 +35,8 @@ test = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/remarkablemark/python-package-template"
-Issues = "https://github.com/remarkablemark/python-package-template/issues"
+Homepage = "https://github.com/remarkablemark/novu-framework"
+Issues = "https://github.com/remarkablemark/novu-framework/issues"
 
 [tool.black]
 fast = true

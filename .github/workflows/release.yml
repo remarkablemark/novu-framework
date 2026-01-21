@@ -30,7 +30,7 @@ jobs:
       id-token: write
     environment:
       name: pypi
-      url: https://pypi.org/p/python-package-template
+      url: https://pypi.org/p/novu-framework
 
     steps:
       - name: Checkout repository
