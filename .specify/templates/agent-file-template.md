@@ -46,7 +46,7 @@ Auto-generated from all feature plans. Last updated: [DATE]
 ### Testing Standards
 
 - pytest for unit tests
-- > 90% coverage requirement
+- 100% coverage requirement
 - Integration tests for workflows
 - Performance tests for high-volume scenarios
 
