@@ -12,9 +12,9 @@ description: "Implementation tasks for Python Framework Package"
 
 **Purpose**: Initialize project structure and tooling
 
-- [ ] T001 Create project structure (src/novu_framework, tests)
-- [ ] T002 Initialize pyproject.toml with dependencies (pydantic, fastapi)
-- [ ] T003 [P] Configure pytest, mypy, and ruff in pyproject.toml
+- [x] T001 Create project structure (src/novu_framework, tests)
+- [x] T002 Initialize pyproject.toml with dependencies (pydantic, fastapi)
+- [x] T003 [P] Configure pytest, mypy, and ruff in pyproject.toml
 
 ---
 
@@ -24,9 +24,9 @@ description: "Implementation tasks for Python Framework Package"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create base exceptions in src/novu_framework/exceptions.py
-- [ ] T005 [P] Define ControlSchema validation in src/novu_framework/validation/controls.py
-- [ ] T006 [P] Define Payload validation in src/novu_framework/validation/payload.py
+- [x] T004 Create base exceptions in src/novu_framework/exceptions.py
+- [x] T005 [P] Define ControlSchema validation in src/novu_framework/validation/controls.py
+- [x] T006 [P] Define Payload validation in src/novu_framework/validation/payload.py
 
 **Checkpoint**: Foundation ready - user story implementation can now begin
 
@@ -40,12 +40,12 @@ description: "Implementation tasks for Python Framework Package"
 
 ### Implementation for User Story 1
 
-- [ ] T008 [US1] Implement Workflow class registry in src/novu_framework/workflow.py
+- [x] T008 [US1] Implement Workflow class registry in src/novu_framework/workflow.py
   - Copy approach from https://github.com/novuhq/novu/blob/v3.12.0/packages/framework/src/resources/workflow/workflow.resource.ts
-- [ ] T009 [US1] Implement @workflow decorator in src/novu_framework/workflow.py
-- [ ] T010 [US1] Implement basic trigger() method in src/novu_framework/workflow.py
-- [ ] T011 [US1] Test workflow registration in tests/unit/test_workflow_registry.py
-- [ ] T012 [US1] Test basic trigger execution in tests/unit/test_trigger.py
+- [x] T009 [US1] Implement @workflow decorator in src/novu_framework/workflow.py
+- [x] T010 [US1] Implement basic trigger() method in src/novu_framework/workflow.py
+- [x] T011 [US1] Test workflow registration in tests/unit/test_workflow_registry.py
+- [x] T012 [US1] Test basic trigger execution in tests/unit/test_trigger.py
 
 **Checkpoint**: User Story 1 fully functional (workflows can be defined and triggered)
 
@@ -59,14 +59,14 @@ description: "Implementation tasks for Python Framework Package"
 
 ### Implementation for User Story 2
 
-- [ ] T013 [P] [US2] Create BaseStep abstract class in src/novu_framework/steps/base.py
-- [ ] T014 [P] [US2] Implement InAppStep in src/novu_framework/steps/in_app.py
-- [ ] T015 [P] [US2] Implement EmailStep in src/novu_framework/steps/email.py
-- [ ] T016 [P] [US2] Implement SmsStep in src/novu_framework/steps/sms.py
-- [ ] T017 [P] [US2] Implement PushStep in src/novu_framework/steps/push.py
-- [ ] T018 [US2] Update Workflow execution engine to handle step sequences in src/novu_framework/workflow.py
-- [ ] T019 [US2] Implement step skip logic in src/novu_framework/steps/base.py
-- [ ] T020 [US2] Integration test for multi-step execution in tests/integration/test_workflow_execution.py
+- [x] T013 [P] [US2] Create BaseStep abstract class in src/novu_framework/steps/base.py
+- [x] T014 [P] [US2] Implement InAppStep in src/novu_framework/steps/in_app.py
+- [x] T015 [P] [US2] Implement EmailStep in src/novu_framework/steps/email.py
+- [x] T016 [P] [US2] Implement SmsStep in src/novu_framework/steps/sms.py
+- [x] T017 [P] [US2] Implement PushStep in src/novu_framework/steps/push.py
+- [x] T018 [US2] Update Workflow execution engine to handle step sequences in src/novu_framework/workflow.py
+- [x] T019 [US2] Implement step skip logic in src/novu_framework/steps/base.py
+- [x] T020 [US2] Integration test for multi-step execution in tests/integration/test_workflow_execution.py
 
 **Checkpoint**: User Story 2 functional (complex workflows with steps)
 
@@ -80,11 +80,11 @@ description: "Implementation tasks for Python Framework Package"
 
 ### Implementation for User Story 3
 
-- [ ] T022 [P] [US3] Create API contract models in src/novu_framework/validation/api.py
-- [ ] T023 [US3] Implement serve() function in src/novu_framework/fastapi.py
-- [ ] T024 [US3] Implement route handlers for workflow discovery and execution in src/novu_framework/fastapi.py
-- [ ] T025 [US3] Contract test for API endpoints in tests/contract/test_api_contract.py
-- [ ] T026 [US3] Integration test with FastAPI app in tests/integration/test_fastapi.py
+- [x] T022 [P] [US3] Create API contract models in src/novu_framework/validation/api.py
+- [x] T023 [US3] Implement serve() function in src/novu_framework/fastapi.py
+- [x] T024 [US3] Implement route handlers for workflow discovery and execution in src/novu_framework/fastapi.py
+- [x] T025 [US3] Contract test for API endpoints in tests/contract/test_api_contract.py
+- [x] T026 [US3] Integration test with FastAPI app in tests/integration/test_fastapi.py
 
 **Checkpoint**: User Story 3 functional (HTTP API available)
 
@@ -94,10 +94,10 @@ description: "Implementation tasks for Python Framework Package"
 
 **Purpose**: Documentation, final validation, and cleanup
 
-- [ ] T027 [P] Create README.md with installation and usage guide
-- [ ] T028 [P] Validate code against quickstart.md examples
-- [ ] T029 Ensure 100% type hint coverage with mypy
-- [ ] T030 Run full test suite and verify coverage
+- [x] T027 [P] Create README.md with installation and usage guide
+- [x] T028 [P] Validate code against quickstart.md examples
+- [x] T029 Ensure 100% type hint coverage with mypy
+- [x] T030 Run full test suite and verify coverage
 
 ---
 
