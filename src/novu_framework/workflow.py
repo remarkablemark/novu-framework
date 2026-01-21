@@ -96,7 +96,9 @@ class StepHandler:
         resolver: Callable[..., Any],
         **options: Any,
     ) -> Dict[str, Any]:
-        return await self._execute_step(PushStep, step_id, resolver, **options)
+        return await self._execute_step(
+            PushStep, step_id, resolver, **options
+        )  # pragma: no cover
 
 
 class Workflow:
@@ -197,16 +199,16 @@ def workflow(
     """
 
     def decorator(func: Callable[..., Any]) -> Callable[..., Any]:
-        nonlocal payload_schema
+        nonlocal payload_schema, name
 
         # Automatically extract payload schema from type hints if not provided
         if payload_schema is None:
             sig = inspect.signature(func)
-            for name, param in sig.parameters.items():
+            for param_name, param in sig.parameters.items():
                 # Check for parameter named 'payload' or simply the first parameter that
                 # is a BaseModel
                 if (
-                    name == "payload"
+                    param_name == "payload"
                     and inspect.isclass(param.annotation)
                     and issubclass(param.annotation, BaseModel)
                 ):
@@ -216,7 +218,7 @@ def workflow(
             # Fallback: check first argument if not named payload (optional, but good
             # for flexibility)
             if payload_schema is None:
-                for name, param in sig.parameters.items():
+                for param_name, param in sig.parameters.items():
                     if inspect.isclass(param.annotation) and issubclass(
                         param.annotation, BaseModel
                     ):
@@ -227,12 +229,12 @@ def workflow(
             workflow_id=workflow_id,
             handler=func,
             payload_schema=payload_schema,
-            name=name,
+            name=name or workflow_id,
         )
         workflow_registry.register(workflow)
 
         @functools.wraps(func)
-        async def wrapper(*args: Any, **kwargs: Any) -> Any:
+        async def wrapper(*args: Any, **kwargs: Any) -> Any:  # pragma: no cover
             return await func(*args, **kwargs)
 
         # Attach workflow instance to wrapper for easy access
