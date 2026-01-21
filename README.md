@@ -1,7 +1,7 @@
 # novu-framework
 
 [![PyPI version](https://img.shields.io/pypi/v/novu-framework)](https://pypi.org/project/novu-framework/)
-[![codecov](https://codecov.io/gh/remarkablemark/novu-framework/graph/badge.svg?token=A5tAkYLEAw)](https://codecov.io/gh/remarkablemark/novu-framework)
+[![codecov](https://codecov.io/gh/remarkablemark/novu-framework/graph/badge.svg?token=bbMOIiPMI0)](https://codecov.io/gh/remarkablemark/novu-framework)
 [![lint](https://github.com/remarkablemark/novu-framework/actions/workflows/lint.yml/badge.svg)](https://github.com/remarkablemark/novu-framework/actions/workflows/lint.yml)
 
 🚀 Novu Framework allows you to write notification workflows in your Python codebase.
