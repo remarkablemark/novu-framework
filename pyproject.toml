@@ -8,11 +8,35 @@ description = "Novu Framework allows you to write notification workflows in your
 readme = "README.md"
 requires-python = ">=3.8"
 classifiers = [
-    "Programming Language :: Python :: 3",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Communications",
+    "Framework :: Pydantic",
+    "Framework :: FastAPI",
 ]
 license = "MIT"
 license-files = ["LICENSE"]
+keywords = [
+    "alert",
+    "alerts",
+    "api",
+    "events",
+    "fastapi",
+    "framework",
+    "library",
+    "messaging",
+    "notification",
+    "notifications",
+    "novu",
+    "pydantic",
+    "sdk",
+    "workflow",
+    "workflows",
+]
 dependencies = [
     "pydantic>=2.0.0",
 ]
