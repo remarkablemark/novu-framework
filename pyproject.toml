@@ -13,7 +13,9 @@ classifiers = [
 ]
 license = "MIT"
 license-files = ["LICENSE"]
-dependencies = []
+dependencies = [
+    "pydantic>=2.0.0",
+]
 
 [project.optional-dependencies]
 build = [
@@ -26,11 +28,15 @@ docs = [
 lint = [
     "black==25.12.0",
     "isort==7.0.0",
+    "mypy==1.6.1",
     "pre-commit==4.5.1",
     "ruff==0.14.13",
 ]
 test = [
     "coverage==7.13.1",
+    "fastapi>=0.100.0",
+    "httpx>=0.27.0",
+    "pytest-asyncio>=0.23.0",
     "pytest==9.0.2",
 ]
 
@@ -40,6 +46,15 @@ Issues = "https://github.com/remarkablemark/novu-framework/issues"
 
 [tool.black]
 fast = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.mypy]
+python_version = "3.8"
+strict = true
+ignore_missing_imports = true
 
 [tool.coverage.run]
 omit = [
