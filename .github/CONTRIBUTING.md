@@ -72,6 +72,22 @@ Things that will improve the chance that your pull request will be accepted:
 - [ ] Write solid documentation.
 - [ ] Write a good [commit message](https://github.com/angular/angular/blob/main/CONTRIBUTING.md#commit).
 
+## Spec-Driven Development
+
+Using slash commands with your [AI agent](https://windsurf.com/):
+
+1. `/speckit.constitution` - Establish project principles
+2. `/speckit.specify` - Create baseline specification
+3. `/speckit.plan` - Create implementation plan
+4. `/speckit.tasks` - Generate actionable tasks
+5. `/speckit.implement` - Execute implementation
+
+Optional commands that you can use for your specs (_improve quality & confidence_):
+
+- `/speckit.clarify` (_optional_) - Ask structured questions to de-risk ambiguous areas before planning (run before `/speckit.plan` if used)
+- `/speckit.analyze` (_optional_) - Cross-artifact consistency & alignment report (after `/speckit.tasks`, before `/speckit.implement`)
+- `/speckit.checklist` (_optional_) - Generate quality checklists to validate requirements completeness, clarity, and consistency (after `/speckit.plan`)
+
 ## Test
 
 Install the dependencies:
