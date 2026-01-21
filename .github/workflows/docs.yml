@@ -1,0 +1,30 @@
+name: docs
+on: [push, pull_request]
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Use Python
+        uses: actions/setup-python@v6
+        with:
+          cache: pip
+          python-version-file: pyproject.toml
+
+      - name: Install dependencies
+        run: pip install -e .[docs]
+
+      - name: Build docs
+        run: pdoc src/python_package_template/ -o docs
+
+      - name: Deploy
+        if: github.ref_name == 'master'
+        uses: remarkablemark/gitploy-action@v1
+        with:
+          directory: docs
