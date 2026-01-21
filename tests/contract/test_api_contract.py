@@ -22,10 +22,10 @@ def client():
     return TestClient(app)
 
 
-def test_discovery_endpoint_structure(client):
+def test_health_check_endpoint_structure(client):
     """
     Test that the discovery endpoint returns the correct structure matching
-    DiscoveryResponse.
+    HealthCheckResponse.
     """
     response = client.get("/api/novu")
     assert response.status_code == 200

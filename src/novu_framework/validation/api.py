@@ -26,7 +26,7 @@ class WorkflowResponse(BaseModel):
     model_config = {"populate_by_name": True}
 
 
-class DiscoveryResponse(BaseModel):
+class HealthCheckResponse(BaseModel):
     """
     Response model for the root discovery endpoint.
     """

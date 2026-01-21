@@ -6,7 +6,7 @@ from novu_framework import __version__
 from novu_framework.workflow import Workflow
 
 from novu_framework.validation.api import (  # isort:skip
-    DiscoveryResponse,
+    HealthCheckResponse,
     TriggerPayload,
     WorkflowResponse,
 )
@@ -25,8 +25,8 @@ def serve(
         workflow = getattr(workflow_func, "_workflow", workflow_func)
         workflow_map[workflow.workflow_id] = workflow
 
-    @router.get("", response_model=DiscoveryResponse)
-    async def discovery() -> DiscoveryResponse:
+    @router.get("", response_model=HealthCheckResponse)
+    async def health_check() -> HealthCheckResponse:
         """
         Discovery endpoint for Novu Framework.
         """
@@ -54,7 +54,7 @@ def serve(
                 )
             )
 
-        return DiscoveryResponse(
+        return HealthCheckResponse(
             workflows=discovered_workflows,
             framework_version=__version__,
             sdk_version="0.0.0",  # Placeholder

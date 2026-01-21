@@ -20,7 +20,7 @@ def client():
     return TestClient(app)
 
 
-def test_discovery_empty_workflows(client):
+def test_health_check_empty_workflows(client):
     """Test discovery endpoint with no workflows."""
     response = client.get("/api/novu")
     assert response.status_code == 200
@@ -30,7 +30,7 @@ def test_discovery_empty_workflows(client):
     assert data["sdkVersion"] == "0.0.0"
 
 
-def test_discovery_with_payload_schema():
+def test_health_check_with_payload_schema():
     """Test discovery endpoint with workflow that has payload schema."""
     workflow_registry.clear()
     app = FastAPI()
@@ -54,7 +54,7 @@ def test_discovery_with_payload_schema():
     assert workflow_data["payloadSchema"]["properties"]["name"]["type"] == "string"
 
 
-def test_discovery_payload_schema_fallback():
+def test_health_check_payload_schema_fallback():
     """Test discovery endpoint with workflow that has non-Pydantic payload schema."""
     workflow_registry.clear()
     app = FastAPI()
