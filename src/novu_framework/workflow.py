@@ -49,17 +49,30 @@ class StepHandler:
             # it is awaitable. But here we haven't called it yet.
             pass
 
+        # Get controls from options, default to empty dict if not provided
+        controls = options.get("controls", {})
+
         result: Any = resolver
         if callable(resolver):
-            # Check if resolver takes args (like inputs or controls)- simplified for now
-            # For this MVP, assume resolver takes no args or we need to pass something?
-            # Quickstart: async () => ({..}) implies no args or maybe execution context?
-            # We will call it with no args for now as per quickstart examples
-            try:
-                result = resolver()
-            except TypeError:
-                # Fallback if it expects arguments (future proofing)
-                result = resolver(self.payload)
+            # Check if resolver takes args (controls, inputs, or payload)
+            # If controls are provided and non-empty, try to call with controls first
+            if controls:
+                try:
+                    result = resolver(controls)
+                except TypeError:
+                    try:
+                        # Fallback to no args (previous behavior)
+                        result = resolver()
+                    except TypeError:
+                        # Final fallback to payload
+                        result = resolver(self.payload)
+            else:
+                # No controls provided, use original behavior
+                try:
+                    result = resolver()
+                except TypeError:
+                    # Fallback to payload
+                    result = resolver(self.payload)
 
         if inspect.isawaitable(result):
             result = await result
@@ -82,32 +95,44 @@ class StepHandler:
         self,
         step_id: str,
         resolver: Callable[..., Any],
+        controlSchema: Optional[Dict[str, Any]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
+        if controlSchema is not None:
+            options["control_schema"] = controlSchema
         return await self._execute_step(InAppStep, step_id, resolver, **options)
 
     async def email(
         self,
         step_id: str,
         resolver: Callable[..., Any],
+        controlSchema: Optional[Dict[str, Any]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
+        if controlSchema is not None:
+            options["control_schema"] = controlSchema
         return await self._execute_step(EmailStep, step_id, resolver, **options)
 
     async def sms(
         self,
         step_id: str,
         resolver: Callable[..., Any],
+        controlSchema: Optional[Dict[str, Any]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
+        if controlSchema is not None:
+            options["control_schema"] = controlSchema
         return await self._execute_step(SmsStep, step_id, resolver, **options)
 
     async def push(
         self,
         step_id: str,
         resolver: Callable[..., Any],
+        controlSchema: Optional[Dict[str, Any]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
+        if controlSchema is not None:
+            options["control_schema"] = controlSchema
         return await self._execute_step(
             PushStep, step_id, resolver, **options
         )  # pragma: no cover

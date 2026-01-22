@@ -39,9 +39,17 @@ async def comment_workflow(payload: CommentPayload, step):
     })
 
     # Email notification step
-    await step.email("comment-email", lambda: {
-        "subject": "New Comment",
+    await step.email("comment-email", lambda controls: {
+        "subject": controls.get("subject", "New Comment"),
         "body": f"You received a new comment: {payload.comment}"
+    }, controlSchema={
+        "type": "object",
+        "properties": {
+            "subject": {
+                "type": "string",
+                "default": "New Comment"
+            }
+        }
     })
 ```
 
