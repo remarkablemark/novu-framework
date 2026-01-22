@@ -20,7 +20,7 @@ class BaseStep(ABC):
         self.options = options or {}
 
     @property
-    def skip(self) -> Optional[Callable[[], bool]]:
+    def skip(self) -> Optional[Callable[[Dict[str, Any]], bool] | Callable[[], bool]]:
         return self.options.get("skip")
 
     @property
