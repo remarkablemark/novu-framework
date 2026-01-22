@@ -16,7 +16,7 @@ def client():
 
     @workflow("integration-workflow")
     async def integration_workflow(payload, step):
-        await step.in_app("step-1", lambda: {"message": f"Hello {payload['name']}"})
+        await step.in_app("step-1", {"message": f"Hello {payload['name']}"})
         return {"processed": True}
 
     serve(app, workflows=[integration_workflow])

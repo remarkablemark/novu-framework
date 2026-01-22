@@ -33,13 +33,13 @@ class CommentPayload(BaseModel):
 @workflow("comment-notification")
 async def comment_workflow(payload: CommentPayload, step):
     # In-app notification step
-    await step.in_app("new-comment", lambda: {
+    await step.in_app("new-comment", {
         "body": f"New comment: {payload.comment}",
         "action_url": f"/posts/{payload.post_id}"
     })
 
     # Email notification step
-    await step.email("comment-email", lambda: {
+    await step.email("comment-email", {
         "subject": "New Comment",
         "body": f"You received a new comment: {payload.comment}"
     })
