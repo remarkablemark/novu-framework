@@ -13,7 +13,7 @@ Create a Python package that emulates the npm TypeScript @novu/framework, provid
 
 **Language/Version**: Python 3.10+
 **Primary Dependencies**: pydantic
-**Testing**: pytest with async support
+**Testing**: pytest
 **Target Platform**: Linux/macOS/Windows servers
 **Project Type**: single (Python library package)
 **Performance Goals**: 1000 concurrent workflow triggers, <50ms FastAPI integration overhead
@@ -38,7 +38,7 @@ All constitution requirements satisfied with the final design:
 
 ✅ **Library-First Design**: Modular package structure with clear imports (`from novu_framework import workflow`)
 
-✅ **Pythonic Interface**: Decorator-based workflow definition, async/await patterns, Pydantic validation, PEP 8 naming conventions
+✅ **Pythonic Interface**: Decorator-based workflow definition, Pydantic validation, PEP 8 naming conventions
 
 ✅ **Test-First Approach**: Comprehensive testing strategy with unit, integration, and performance tests defined
 

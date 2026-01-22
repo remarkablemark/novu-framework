@@ -13,7 +13,7 @@ class ValidationPayload(BaseModel):
 async def test_workflow_trigger_validation_error():
     """Test workflow trigger with payload validation error."""
 
-    async def handler(payload, step):
+    def handler(payload, step):
         return {"processed": True}
 
     workflow_obj = Workflow("validation-error-workflow", handler, ValidationPayload)
@@ -31,8 +31,8 @@ async def test_workflow_trigger_validation_error():
 async def test_workflow_trigger_without_schema():
     """Test workflow trigger without payload schema (uses raw dict)."""
 
-    async def handler(payload, step):
-        await step.in_app(
+    def handler(payload, step):
+        step.in_app(
             "test-step", lambda: {"message": f"Hello {payload.get('name', 'Unknown')}"}
         )
         return {"processed": True}

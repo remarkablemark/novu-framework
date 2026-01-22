@@ -95,8 +95,7 @@ As a Python developer, I want to integrate the framework with popular Python web
 - **FR-006**: System MUST integrate with FastAPI framework via serve() function
 - **FR-007**: System MUST support workflow step skipping based on conditions
 - **FR-008**: System MUST provide control schema validation for non-technical stakeholders
-- **FR-009**: System MUST handle async workflow execution
-- **FR-010**: System MUST maintain workflow execution state and history
+- **FR-009**: System MUST maintain workflow execution state and history
 
 ### Key Entities
 

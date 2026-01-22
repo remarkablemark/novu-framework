@@ -14,8 +14,7 @@ class SMSControls(BaseModel):
     urgent: bool = False
 
 
-@pytest.mark.asyncio
-async def test_step_handler_email_with_pydantic_control_schema():
+def test_step_handler_email_with_pydantic_control_schema():
     """Test StepHandler email method with Pydantic model as controlSchema."""
     handler = StepHandler({"test": "data"})
 
@@ -30,13 +29,13 @@ async def test_step_handler_email_with_pydantic_control_schema():
     original_execute = handler._execute_step
     captured_options = {}
 
-    async def mock_execute(step_class, step_id, resolver, **options):
+    def mock_execute(step_class, step_id, resolver, **options):
         captured_options.update(options)
-        return await original_execute(step_class, step_id, resolver, **options)
+        return original_execute(step_class, step_id, resolver, **options)
 
     handler._execute_step = mock_execute
 
-    await handler.email(
+    handler.email(
         step_id="test-email",
         resolver=resolver_with_controls,
         controlSchema=EmailControls,
@@ -50,8 +49,7 @@ async def test_step_handler_email_with_pydantic_control_schema():
     assert "include_footer" in captured_options["control_schema"]["properties"]
 
 
-@pytest.mark.asyncio
-async def test_step_handler_sms_with_pydantic_control_schema():
+def test_step_handler_sms_with_pydantic_control_schema():
     """Test StepHandler sms method with Pydantic model as controlSchema."""
     handler = StepHandler({"test": "data"})
 
@@ -65,13 +63,13 @@ async def test_step_handler_sms_with_pydantic_control_schema():
     original_execute = handler._execute_step
     captured_options = {}
 
-    async def mock_execute(step_class, step_id, resolver, **options):
+    def mock_execute(step_class, step_id, resolver, **options):
         captured_options.update(options)
-        return await original_execute(step_class, step_id, resolver, **options)
+        return original_execute(step_class, step_id, resolver, **options)
 
     handler._execute_step = mock_execute
 
-    await handler.sms(
+    handler.sms(
         step_id="test-sms",
         resolver=resolver_with_controls,
         controlSchema=SMSControls,
@@ -85,8 +83,7 @@ async def test_step_handler_sms_with_pydantic_control_schema():
     assert "urgent" in captured_options["control_schema"]["properties"]
 
 
-@pytest.mark.asyncio
-async def test_step_handler_in_app_with_pydantic_control_schema():
+def test_step_handler_in_app_with_pydantic_control_schema():
     """Test StepHandler in_app method with Pydantic model as controlSchema."""
     handler = StepHandler({"test": "data"})
 
@@ -97,13 +94,13 @@ async def test_step_handler_in_app_with_pydantic_control_schema():
     original_execute = handler._execute_step
     captured_options = {}
 
-    async def mock_execute(step_class, step_id, resolver, **options):
+    def mock_execute(step_class, step_id, resolver, **options):
         captured_options.update(options)
-        return await original_execute(step_class, step_id, resolver, **options)
+        return original_execute(step_class, step_id, resolver, **options)
 
     handler._execute_step = mock_execute
 
-    await handler.in_app(
+    handler.in_app(
         step_id="test-in-app",
         resolver=resolver_with_controls,
         controlSchema=SMSControls,  # Reuse SMSControls for testing
@@ -114,8 +111,7 @@ async def test_step_handler_in_app_with_pydantic_control_schema():
     assert captured_options["control_schema"]["type"] == "object"
 
 
-@pytest.mark.asyncio
-async def test_step_handler_push_with_pydantic_control_schema():
+def test_step_handler_push_with_pydantic_control_schema():
     """Test StepHandler push method with Pydantic model as controlSchema."""
     handler = StepHandler({"test": "data"})
 
@@ -129,13 +125,13 @@ async def test_step_handler_push_with_pydantic_control_schema():
     original_execute = handler._execute_step
     captured_options = {}
 
-    async def mock_execute(step_class, step_id, resolver, **options):
+    def mock_execute(step_class, step_id, resolver, **options):
         captured_options.update(options)
-        return await original_execute(step_class, step_id, resolver, **options)
+        return original_execute(step_class, step_id, resolver, **options)
 
     handler._execute_step = mock_execute
 
-    await handler.push(
+    handler.push(
         step_id="test-push",
         resolver=resolver_with_controls,
         controlSchema=SMSControls,  # Reuse SMSControls for testing
@@ -146,8 +142,7 @@ async def test_step_handler_push_with_pydantic_control_schema():
     assert captured_options["control_schema"]["type"] == "object"
 
 
-@pytest.mark.asyncio
-async def test_convert_control_schema_with_dict():
+def test_convert_control_schema_with_dict():
     """Test _convert_control_schema with dict input (backward compatibility)."""
     handler = StepHandler({"test": "data"})
 
@@ -157,8 +152,7 @@ async def test_convert_control_schema_with_dict():
     assert result == dict_schema
 
 
-@pytest.mark.asyncio
-async def test_convert_control_schema_with_pydantic():
+def test_convert_control_schema_with_pydantic():
     """Test _convert_control_schema with Pydantic model input."""
     handler = StepHandler({"test": "data"})
 
@@ -172,8 +166,7 @@ async def test_convert_control_schema_with_pydantic():
     assert result["properties"]["include_footer"]["type"] == "boolean"
 
 
-@pytest.mark.asyncio
-async def test_convert_control_schema_with_invalid_type():
+def test_convert_control_schema_with_invalid_type():
     """Test _convert_control_schema with invalid type raises ValueError."""
     handler = StepHandler({"test": "data"})
 
@@ -183,8 +176,7 @@ async def test_convert_control_schema_with_invalid_type():
         handler._convert_control_schema("invalid_schema")
 
 
-@pytest.mark.asyncio
-async def test_control_schema_backward_compatibility():
+def test_control_schema_backward_compatibility():
     """Test that dict-based controlSchema still works (backward compatibility)."""
     handler = StepHandler({"test": "data"})
 
@@ -195,9 +187,9 @@ async def test_control_schema_backward_compatibility():
     original_execute = handler._execute_step
     captured_options = {}
 
-    async def mock_execute(step_class, step_id, resolver, **options):
+    def mock_execute(step_class, step_id, resolver, **options):
         captured_options.update(options)
-        return await original_execute(step_class, step_id, resolver, **options)
+        return original_execute(step_class, step_id, resolver, **options)
 
     handler._execute_step = mock_execute
 
@@ -206,7 +198,7 @@ async def test_control_schema_backward_compatibility():
         "properties": {"subject": {"type": "string", "default": "New Comment"}},
     }
 
-    await handler.email(
+    handler.email(
         step_id="test-email",
         resolver=resolver_with_controls,
         controlSchema=dict_schema,

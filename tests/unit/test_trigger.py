@@ -10,7 +10,7 @@ async def test_workflow_trigger_execution():
     execution_flag = {"executed": False, "payload": None}
 
     @workflow("trigger-test")
-    async def my_workflow(payload, step):
+    def my_workflow(payload, step):
         execution_flag["executed"] = True
         execution_flag["payload"] = payload
         return {"status": "success"}

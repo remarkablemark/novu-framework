@@ -35,15 +35,15 @@ class EmailControls(BaseModel):
     include_footer: bool = True
 
 @workflow("comment-notification")
-async def comment_workflow(payload: CommentPayload, step):
+def comment_workflow(payload: CommentPayload, step):
     # In-app notification step (using dict)
-    await step.in_app("new-comment", {
+    step.in_app("new-comment", {
         "body": f"New comment: {payload.comment}",
         "action_url": f"/posts/{payload.post_id}"
     })
 
     # Email notification step (using lambda)
-    await step.email("comment-email", lambda controls: {
+    step.email("comment-email", lambda controls: {
         "subject": controls.subject,
         "body": f"You received a new comment: {payload.comment}",
         "footer": "Thanks for using our app!" if controls.include_footer else ""
@@ -78,7 +78,6 @@ serve(app, route="/api/novu", workflows=[comment_workflow])
 - **Type Safety**: Built-in support for Pydantic models for payload validation.
 - **Multi-Channel Support**: Support for In-App, Email, SMS, and Push notifications.
 - **FastAPI Integration**: Seamlessly integrate with FastAPI applications.
-- **Async Support**: Fully asynchronous design using `asyncio`.
 
 ## License
 

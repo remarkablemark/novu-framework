@@ -8,7 +8,7 @@
 
 ### 1. Primary Dependencies Research
 
-**Task**: Research optimal Python libraries for decorator implementation, async frameworks, and schema validation
+**Task**: Research optimal Python libraries for decorator implementation and schema validation
 
 #### Decorator Libraries
 
@@ -24,19 +24,6 @@
 
 - `decorator` library: Rejected as unnecessary dependency
 - `wrapt` library: Rejected as overly complex for our use case
-
-#### Async Framework Integration
-
-**Decision**: Use `asyncio`
-**Rationale**:
-
-- `asyncio` is part of Python standard library (3.7+)
-- Excellent FastAPI integration support
-
-**Alternatives Considered**:
-
-- Custom async implementation: Rejected due to complexity
-- Multiple framework-specific implementations: Rejected due to maintenance overhead
 
 #### Schema Validation
 
@@ -65,7 +52,7 @@
 **Rationale**:
 
 - FastAPI is the de facto standard for modern Python APIs
-- Excellent async support and type hint integration
+- Excellent type hint integration
 - Minimal overhead for the <50ms latency requirement
 - Rich ecosystem and community support
 
@@ -80,14 +67,13 @@
 ### Primary Dependencies
 
 - **Decorator libraries**: Resolved - Use Python standard library
-- **Async frameworks**: Resolved - Use asyncio
 - **Validation libraries**: Resolved - Use pydantic
 
 ## Updated Technical Context
 
 **Language/Version**: Python 3.10+
 **Primary Dependencies**: pydantic
-**Testing**: pytest with async support
+**Testing**: pytest
 **Target Platform**: Linux/macOS/Windows servers
 **Project Type**: single (Python library package)
 **Performance Goals**: 1000 concurrent workflow triggers, <50ms FastAPI integration overhead

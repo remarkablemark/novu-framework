@@ -15,8 +15,8 @@ def client():
     app = FastAPI()
 
     @workflow("integration-workflow")
-    async def integration_workflow(payload, step):
-        await step.in_app("step-1", lambda: {"message": f"Hello {payload['name']}"})
+    def integration_workflow(payload, step):
+        step.in_app("step-1", lambda: {"message": f"Hello {payload['name']}"})
         return {"processed": True}
 
     serve(app, workflows=[integration_workflow])

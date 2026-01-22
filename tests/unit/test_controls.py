@@ -3,15 +3,14 @@ import pytest
 from novu_framework.workflow import StepHandler
 
 
-@pytest.mark.asyncio
-async def test_step_handler_resolver_with_controls():
+def test_step_handler_resolver_with_controls():
     """Test StepHandler resolver with controls argument."""
     handler = StepHandler({"test": "data"})
 
     def resolver_with_controls(controls):
         return {"subject": controls.get("subject", "default"), "body": "test body"}
 
-    result = await handler._execute_step(
+    result = handler._execute_step(
         step_class=type("TestStep", (), {"step_type": "TEST"}),
         step_id="controls-step",
         resolver=resolver_with_controls,
@@ -25,15 +24,14 @@ async def test_step_handler_resolver_with_controls():
     }
 
 
-@pytest.mark.asyncio
-async def test_step_handler_resolver_with_controls_default():
+def test_step_handler_resolver_with_controls_default():
     """Test StepHandler resolver with controls using default values."""
     handler = StepHandler({"test": "data"})
 
     def resolver_with_controls(controls):
         return {"subject": controls.get("subject", "default"), "body": "test body"}
 
-    result = await handler._execute_step(
+    result = handler._execute_step(
         step_class=type("TestStep", (), {"step_type": "TEST"}),
         step_id="controls-default-step",
         resolver=resolver_with_controls,
@@ -47,15 +45,14 @@ async def test_step_handler_resolver_with_controls_default():
     }
 
 
-@pytest.mark.asyncio
-async def test_step_handler_resolver_fallback_no_controls():
+def test_step_handler_resolver_fallback_no_controls():
     """Test StepHandler resolver fallback when function doesn't accept controls."""
     handler = StepHandler({"test": "data"})
 
     def resolver_no_args():
         return {"fixed": "result"}
 
-    result = await handler._execute_step(
+    result = handler._execute_step(
         step_class=type("TestStep", (), {"step_type": "TEST"}),
         step_id="no-controls-step",
         resolver=resolver_no_args,
@@ -66,15 +63,14 @@ async def test_step_handler_resolver_fallback_no_controls():
     assert handler.step_results["no-controls-step"] == {"fixed": "result"}
 
 
-@pytest.mark.asyncio
-async def test_step_handler_resolver_fallback_payload():
+def test_step_handler_resolver_fallback_payload():
     """Test StepHandler resolver fallback to payload argument when function signature is incompatible."""
     handler = StepHandler({"test": "data"})
 
     def resolver_no_args():
         return {"fixed": "result"}
 
-    result = await handler._execute_step(
+    result = handler._execute_step(
         step_class=type("TestStep", (), {"step_type": "TEST"}),
         step_id="no-args-step",
         resolver=resolver_no_args,
@@ -93,15 +89,19 @@ async def test_step_handler_resolver_async_with_controls():
     async def async_resolver_with_controls(controls):
         return {"subject": controls.get("subject", "default"), "async": True}
 
-    result = await handler._execute_step(
+    result = handler._execute_step(
         step_class=type("TestStep", (), {"step_type": "TEST"}),
         step_id="async-controls-step",
         resolver=async_resolver_with_controls,
         controls={"subject": "Async Subject"},
     )
 
-    assert result == {"subject": "Async Subject", "async": True}
-    assert handler.step_results["async-controls-step"] == {
-        "subject": "Async Subject",
-        "async": True,
-    }
+    # In sync version, async resolvers are returned as coroutine objects
+    import inspect
+
+    assert inspect.iscoroutine(result)
+
+    # Verify the coroutine works by awaiting it
+    awaited_result = await result
+    assert awaited_result == {"subject": "Async Subject", "async": True}
+    assert handler.step_results["async-controls-step"] == result

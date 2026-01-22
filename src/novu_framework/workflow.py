@@ -21,7 +21,7 @@ class StepHandler:
         self.workflow = workflow
         self.executed_steps: List[str] = []
 
-    async def _execute_step(
+    def _execute_step(
         self,
         step_class: Type[Any],
         step_id: str,
@@ -35,26 +35,20 @@ class StepHandler:
         skip = options.get("skip")
         if skip and callable(skip):
             should_skip = skip()
-            if inspect.isawaitable(should_skip):
-                should_skip = await should_skip
+            # For sync version, we don't support async skip functions
             if should_skip:
                 skipped_result: Dict[str, Any] = {"skipped": True}
                 self.step_results[step_id] = skipped_result
                 return skipped_result
 
         # Execute resolver
-        # The resolver can be an async function, a sync function returning a dict, or a dict directly
+        # The resolver can be a sync function returning a dict, or a dict directly
         result: Any
         if isinstance(resolver, dict):
             # Direct dict argument, use as-is
             result = resolver
         else:
-            # Handle callable resolver
-            if inspect.iscoroutinefunction(resolver) or inspect.isawaitable(resolver):
-                # This check is slightly loose, normally we check if the result of calling
-                # it is awaitable. But here we haven't called it yet.
-                pass
-
+            # Handle callable resolver (sync only)
             # Get controls from options, default to empty dict if not provided
             controls = options.get("controls", {})
 
@@ -80,9 +74,7 @@ class StepHandler:
                         # Fallback to payload
                         result = resolver(self.payload)
 
-        if inspect.isawaitable(result):
-            result = await result
-
+        # For sync version, we don't support async resolvers
         # Store result and track step
         self.step_results[step_id] = result
         self.executed_steps.append(step_id)
@@ -114,7 +106,7 @@ class StepHandler:
                 f"controlSchema must be a dict or Pydantic BaseModel class, got {type(control_schema)}"
             )
 
-    async def in_app(
+    def in_app(
         self,
         step_id: str,
         resolver: Callable[..., Any] | Dict[str, Any],
@@ -123,9 +115,9 @@ class StepHandler:
     ) -> Dict[str, Any]:
         if controlSchema is not None:
             options["control_schema"] = self._convert_control_schema(controlSchema)
-        return await self._execute_step(InAppStep, step_id, resolver, **options)
+        return self._execute_step(InAppStep, step_id, resolver, **options)
 
-    async def email(
+    def email(
         self,
         step_id: str,
         resolver: Callable[..., Any] | Dict[str, Any],
@@ -134,9 +126,9 @@ class StepHandler:
     ) -> Dict[str, Any]:
         if controlSchema is not None:
             options["control_schema"] = self._convert_control_schema(controlSchema)
-        return await self._execute_step(EmailStep, step_id, resolver, **options)
+        return self._execute_step(EmailStep, step_id, resolver, **options)
 
-    async def sms(
+    def sms(
         self,
         step_id: str,
         resolver: Callable[..., Any] | Dict[str, Any],
@@ -145,9 +137,9 @@ class StepHandler:
     ) -> Dict[str, Any]:
         if controlSchema is not None:
             options["control_schema"] = self._convert_control_schema(controlSchema)
-        return await self._execute_step(SmsStep, step_id, resolver, **options)
+        return self._execute_step(SmsStep, step_id, resolver, **options)
 
-    async def push(
+    def push(
         self,
         step_id: str,
         resolver: Callable[..., Any] | Dict[str, Any],
@@ -156,7 +148,7 @@ class StepHandler:
     ) -> Dict[str, Any]:
         if controlSchema is not None:
             options["control_schema"] = self._convert_control_schema(controlSchema)
-        return await self._execute_step(
+        return self._execute_step(
             PushStep, step_id, resolver, **options
         )  # pragma: no cover
 
@@ -203,7 +195,10 @@ class Workflow:
 
         # Execute the handler with the step handler
         # T018: Update Workflow execution engine
-        await self.handler(validated_payload, step_handler)
+        result = self.handler(validated_payload, step_handler)
+        # Handle async handlers if they still exist
+        if inspect.isawaitable(result):
+            await result
 
         # Return the collected results
         return {
@@ -294,8 +289,8 @@ def workflow(
         workflow_registry.register(workflow)
 
         @functools.wraps(func)
-        async def wrapper(*args: Any, **kwargs: Any) -> Any:  # pragma: no cover
-            return await func(*args, **kwargs)
+        def wrapper(*args: Any, **kwargs: Any) -> Any:  # pragma: no cover
+            return func(*args, **kwargs)
 
         # Attach workflow instance to wrapper for easy access
         setattr(wrapper, "workflow_id", workflow_id)

@@ -22,28 +22,25 @@ class PayloadSchema(BaseModel):
     comment: str
     post_id: str
 
+class ControlSchema(BaseModel):
+    prefix: str = 'Notification'
+
 @workflow('comment-notification')
-async def comment_workflow(payload: CommentPayload, step):
+def comment_workflow(payload: CommentPayload, step):
     # In-app notification step
-    await step.in_app('new-comment', async () => ({
+    step.in_app('new-comment', {
         'body': f'New comment on your post: {payload.comment}',
         'action_url': f'/posts/{payload.post_id}'
-    }))
+    })
 
     # Email notification step
-    await step.email(
+    step.email(
         'comment-email',
-        async (controls) => ({
+        lambda controls: {
             'subject': f'{controls.prefix} - New Comment',
             'body': f'You received a new comment: {payload.comment}'
-        }),
-        control_schema={
-            'prefix': {
-                'type': 'string',
-                'description': 'Email subject prefix',
-                'default': 'Notification'
-            }
-        }
+        },
+        control_schema=ControlSchema
     )
 ```
 
@@ -54,7 +51,7 @@ async def comment_workflow(payload: CommentPayload, step):
 from your_workflows import comment_workflow
 
 # Trigger workflow
-await comment_workflow.trigger(
+comment_workflow.trigger(
     to='subscriber_id_123',
     payload={
         'comment': 'This is a great post!',
@@ -85,38 +82,35 @@ serve(app, route='/api/novu', workflows=[comment_workflow])
 from novu_framework import workflow, CronExpression
 from pydantic import BaseModel
 
-class ActivityPayload(BaseModel):
+class PayloadSchema(BaseModel):
     activity: str
     user_id: str
 
+class ControlSchema(BaseModel):
+    prefix: str = 'Weekly Digest'
+
 @workflow('weekly-activity-digest')
-async def activity_digest_workflow(payload: ActivityPayload, step):
+def activity_digest_workflow(payload: PayloadSchema, step):
     # Immediate in-app notification
-    await step.in_app('activity', async () => ({
+    step.in_app('activity', {
         'body': f'New activity: {payload.activity}'
-    }))
+    })
 
     # Weekly digest
-    weekly_digest = await step.digest('weekly-summary', async () => ({
+    weekly_digest = step.digest('weekly-summary', {
         'cron': CronExpression.EVERY_WEEK,
         'timezone': 'UTC'
-    }))
+    })
 
     # Email digest (skipped if no activities)
-    await step.email(
+    step.email(
         'weekly-email',
-        async (controls) => ({
+        lambda controls: {
             'subject': f'{controls.prefix} - Weekly Activity Summary',
             'body': f'Activities this week: {len(weekly_digest.events)}'
-        }),
-        skip=lambda: len(weekly_digest.events) == 0,
-        control_schema={
-            'prefix': {
-                'type': 'string',
-                'description': 'Email subject prefix',
-                'default': 'Weekly Digest'
-            }
-        }
+        },
+        skip=lambda controls: len(weekly_digest.events) == 0,
+        control_schema=ControlSchema,
     )
 ```
 
@@ -124,21 +118,21 @@ async def activity_digest_workflow(payload: ActivityPayload, step):
 
 ```python
 @workflow('conditional-notifications')
-async def conditional_workflow(payload: CommentPayload, step):
+def conditional_workflow(payload: PayloadSchema, step):
     # Only send in-app for active users
-    await step.in_app(
+    step.in_app(
         'conditional-in-app',
-        async () => ({
+        {
             'body': f'Comment: {payload.comment}'
-        }),
-        skip=lambda: payload.comment.startswith('[spam]')
+        },
+        skip=lambda controls: payload.comment.startswith('[spam]')
     )
 
     # Always send email to moderators
-    await step.email('moderator-alert', async () => ({
+    step.email('moderator-alert', {
         'subject': 'New Comment Requires Review',
         'body': f'Comment: {payload.comment}'
-    }))
+    })
 ```
 
 ### Custom Step Types
@@ -149,10 +143,10 @@ from novu_framework.steps.base import BaseStep
 class CustomSlackStep(BaseStep):
     step_type = 'SLACK'
 
-    async def execute(self, context):
+    def execute(self, context):
         # Custom Slack integration logic
         message = self.config.get('message', 'Default message')
-        await self.send_slack_message(message)
+        self.send_slack_message(message)
         return {'status': 'sent', 'message': message}
 
 # Register custom step
@@ -160,10 +154,10 @@ from novu_framework import register_step_type
 register_step_type('SLACK', CustomSlackStep)
 
 @workflow('slack-workflow')
-async def slack_workflow(payload: CommentPayload, step):
-    await step.slack('slack-notification', async () => ({
+def slack_workflow(payload: PayloadSchema, step):
+    step.slack('slack-notification', {
         'message': f'New comment: {payload.comment}'
-    }))
+    })
 ```
 
 ## Testing
@@ -175,12 +169,11 @@ import pytest
 from novu_framework.testing import WorkflowTestClient
 from your_workflows import comment_workflow
 
-@pytest.mark.asyncio
-async def test_comment_workflow():
+def test_comment_workflow():
     client = WorkflowTestClient()
 
     # Test workflow execution
-    result = await client.trigger_workflow(
+    result = client.trigger_workflow(
         workflow=comment_workflow,
         recipient='user:123',
         data={
@@ -197,14 +190,12 @@ async def test_comment_workflow():
 ### Integration Tests
 
 ```python
-import pytest
 from httpx import AsyncClient
 from your_app import app
 
-@pytest.mark.asyncio
-async def test_workflow_api():
-    async with AsyncClient(app=app, base_url="https://example.com") as client:
-        response = await client.get("/api/novu")
+def test_workflow_api():
+    with AsyncClient(app=app, base_url="https://example.com") as client:
+        response = client.get("/api/novu")
         assert response.status_code == 200
         content = response.json()
         assert "sdkVersion" in content
@@ -225,7 +216,6 @@ async def test_workflow_api():
 
 ### 2. Performance
 
-- Use async/await for I/O operations
 - Configure appropriate timeouts
 
 ### 3. Security

@@ -39,8 +39,8 @@ def test_health_check_with_payload_schema():
     app = FastAPI()
 
     @workflow("schema-workflow", payload_schema=PayloadSchema)
-    async def schema_workflow(payload: PayloadSchema, step):
-        await step.in_app("step-1", lambda: {"message": f"Hello {payload.name}"})
+    def schema_workflow(payload: PayloadSchema, step):
+        step.in_app("step-1", lambda: {"message": f"Hello {payload.name}"})
         return {"processed": True}
 
     serve(app, workflows=[schema_workflow])
@@ -62,8 +62,8 @@ def test_health_check_payload_schema_fallback():
         pass
 
     @workflow("fallback-workflow", payload_schema=NonPydanticSchema)
-    async def fallback_workflow(payload, step):
-        await step.in_app("step-1", lambda: {"message": "fallback"})
+    def fallback_workflow(payload, step):
+        step.in_app("step-1", lambda: {"message": "fallback"})
         return {"processed": True}
 
     serve(app, workflows=[fallback_workflow])
@@ -113,8 +113,8 @@ def test_serve_with_workflow_objects():
 
     from novu_framework.workflow import Workflow
 
-    async def handler(payload, step):
-        await step.in_app("step-1", lambda: {"message": "direct object"})
+    def handler(payload, step):
+        step.in_app("step-1", lambda: {"message": "direct object"})
         return {"processed": True}
 
     workflow_obj = Workflow("direct-workflow", handler)

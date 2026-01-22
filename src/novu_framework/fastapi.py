@@ -39,10 +39,10 @@ def serve(
                 source = inspect.getsource(workflow.handler)
                 # Count step method calls (in_app, email, sms, push)
                 step_count = (
-                    source.count("await step.in_app")
-                    + source.count("await step.email")
-                    + source.count("await step.sms")
-                    + source.count("await step.push")
+                    source.count("step.in_app")
+                    + source.count("step.email")
+                    + source.count("step.sms")
+                    + source.count("step.push")
                 )
                 total_steps += step_count
             except (OSError, TypeError):

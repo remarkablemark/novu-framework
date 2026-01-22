@@ -41,7 +41,7 @@ def test_workflow_decorator_with_name():
     workflow_registry.clear()
 
     @workflow("named-workflow", name="Custom Workflow Name")
-    async def named_workflow(payload, step):
+    def named_workflow(payload, step):
         return {"processed": True}
 
     workflow_obj = workflow_registry.get("named-workflow")
@@ -55,8 +55,8 @@ async def test_workflow_trigger_full_execution():
     workflow_registry.clear()
 
     @workflow("full-execution-workflow", payload_schema=SimpleTestPayload)
-    async def full_workflow(payload: SimpleTestPayload, step):
-        await step.in_app("test-step", lambda: {"message": f"Hello {payload.name}"})
+    def full_workflow(payload: SimpleTestPayload, step):
+        step.in_app("test-step", lambda: {"message": f"Hello {payload.name}"})
         return {"processed": True}
 
     result = await full_workflow.trigger(

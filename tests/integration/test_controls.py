@@ -14,9 +14,9 @@ async def test_workflow_with_controls_integration():
     """Test complete workflow with controls functionality."""
 
     @workflow("comment-notification")
-    async def comment_workflow(payload: CommentPayload, step):
+    def comment_workflow(payload: CommentPayload, step):
         # In-app notification step
-        await step.in_app(
+        step.in_app(
             "new-comment",
             lambda: {
                 "body": f"New comment: {payload.comment}",
@@ -25,7 +25,7 @@ async def test_workflow_with_controls_integration():
         )
 
         # Email notification step with controls
-        await step.email(
+        step.email(
             "comment-email",
             lambda controls: {
                 "subject": controls.get("subject", "New Comment"),
@@ -59,8 +59,8 @@ async def test_workflow_with_controls_default_values():
     """Test workflow with controls using default values."""
 
     @workflow("test-controls-default")
-    async def test_workflow(payload: dict, step):
-        await step.email(
+    def test_workflow(payload: dict, step):
+        step.email(
             "test-email",
             lambda controls: {
                 "subject": controls.get("subject", "Default Subject"),
