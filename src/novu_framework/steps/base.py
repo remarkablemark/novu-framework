@@ -1,5 +1,5 @@
 from abc import ABC
-from typing import Any, Awaitable, Callable, Dict, Optional, Union
+from typing import Any, Awaitable, Callable, Dict, Optional
 
 
 class BaseStep(ABC):
@@ -12,9 +12,7 @@ class BaseStep(ABC):
     def __init__(
         self,
         step_id: str,
-        resolver: Union[
-            Callable[..., Any], Callable[..., Awaitable[Any]], Dict[str, Any]
-        ],
+        resolver: Callable[..., Any] | Callable[..., Awaitable[Any]] | Dict[str, Any],
         options: Optional[Dict[str, Any]] = None,
     ):
         self.step_id = step_id

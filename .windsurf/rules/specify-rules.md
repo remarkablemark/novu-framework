@@ -21,7 +21,7 @@ Auto-generated from all feature plans. Last updated: 2026-01-20
 
 ## Active Technologies
 
-- Python 3.8+ (001-python-framework)
+- Python 3.10+ (001-python-framework)
 
 ## Project Structure
 
@@ -53,7 +53,7 @@ cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY COMMANDS FOR ACTIVE TECHNOLO
 
 ## Recent Changes
 
-- 001-python-framework: Added Python 3.8+
+- 001-python-framework: Added Python 3.10+
 
 <!-- MANUAL ADDITIONS START -->
 

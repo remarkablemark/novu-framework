@@ -1,4 +1,4 @@
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional
 
 from pydantic import BaseModel, Field
 
@@ -40,7 +40,7 @@ class TriggerPayload(BaseModel):
     Request model for triggering a workflow.
     """
 
-    to: Union[str, Dict[str, Any]] = Field(..., description="Target recipient")
+    to: str | Dict[str, Any] = Field(..., description="Target recipient")
     payload: Dict[str, Any] = Field(..., description="Workflow payload data")
     metadata: Optional[Dict[str, Any]] = Field(
         default=None, description="Additional metadata"

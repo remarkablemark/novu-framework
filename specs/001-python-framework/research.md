@@ -85,7 +85,7 @@
 
 ## Updated Technical Context
 
-**Language/Version**: Python 3.8+
+**Language/Version**: Python 3.10+
 **Primary Dependencies**: pydantic
 **Testing**: pytest with async support
 **Target Platform**: Linux/macOS/Windows servers

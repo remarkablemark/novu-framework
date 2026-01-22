@@ -1,6 +1,6 @@
 import functools
 import inspect
-from typing import Any, Callable, Dict, List, Optional, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Type
 
 from pydantic import BaseModel
 
@@ -25,7 +25,7 @@ class StepHandler:
         self,
         step_class: Type[Any],
         step_id: str,
-        resolver: Union[Callable[..., Any], Dict[str, Any]],
+        resolver: Callable[..., Any] | Dict[str, Any],
         **options: Any,
     ) -> Dict[str, Any]:
         """
@@ -98,7 +98,7 @@ class StepHandler:
         return result  # type: ignore[no-any-return]
 
     def _convert_control_schema(
-        self, control_schema: Union[Dict[str, Any], Type[BaseModel]]
+        self, control_schema: Dict[str, Any] | Type[BaseModel]
     ) -> Dict[str, Any]:
         """
         Convert control schema from Pydantic model to JSON Schema if needed.
@@ -117,8 +117,8 @@ class StepHandler:
     async def in_app(
         self,
         step_id: str,
-        resolver: Union[Callable[..., Any], Dict[str, Any]],
-        controlSchema: Optional[Union[Dict[str, Any], Type[BaseModel]]] = None,
+        resolver: Callable[..., Any] | Dict[str, Any],
+        controlSchema: Optional[Dict[str, Any] | Type[BaseModel]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
         if controlSchema is not None:
@@ -128,8 +128,8 @@ class StepHandler:
     async def email(
         self,
         step_id: str,
-        resolver: Union[Callable[..., Any], Dict[str, Any]],
-        controlSchema: Optional[Union[Dict[str, Any], Type[BaseModel]]] = None,
+        resolver: Callable[..., Any] | Dict[str, Any],
+        controlSchema: Optional[Dict[str, Any] | Type[BaseModel]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
         if controlSchema is not None:
@@ -139,8 +139,8 @@ class StepHandler:
     async def sms(
         self,
         step_id: str,
-        resolver: Union[Callable[..., Any], Dict[str, Any]],
-        controlSchema: Optional[Union[Dict[str, Any], Type[BaseModel]]] = None,
+        resolver: Callable[..., Any] | Dict[str, Any],
+        controlSchema: Optional[Dict[str, Any] | Type[BaseModel]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
         if controlSchema is not None:
@@ -150,8 +150,8 @@ class StepHandler:
     async def push(
         self,
         step_id: str,
-        resolver: Union[Callable[..., Any], Dict[str, Any]],
-        controlSchema: Optional[Union[Dict[str, Any], Type[BaseModel]]] = None,
+        resolver: Callable[..., Any] | Dict[str, Any],
+        controlSchema: Optional[Dict[str, Any] | Type[BaseModel]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
         if controlSchema is not None:
@@ -181,7 +181,7 @@ class Workflow:
 
     async def trigger(
         self,
-        to: Union[str, Dict[str, Any]],
+        to: str | Dict[str, Any],
         payload: Dict[str, Any],
         metadata: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any]:
@@ -189,7 +189,7 @@ class Workflow:
         Trigger the workflow execution.
         """
         # Validated payload creation (T010 implementation will expand this)
-        validated_payload: Union[Dict[str, Any], BaseModel] = payload
+        validated_payload: Dict[str, Any] | BaseModel = payload
         if self.payload_schema:
             try:
                 validated_payload = self.payload_schema(**payload)
