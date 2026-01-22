@@ -15,9 +15,11 @@ class StepHandler:
     Handles the execution of workflow steps.
     """
 
-    def __init__(self, payload: Dict[str, Any]):
+    def __init__(self, payload: Dict[str, Any], workflow: Optional["Workflow"] = None):
         self.payload = payload
         self.step_results: Dict[str, Any] = {}
+        self.workflow = workflow
+        self.executed_steps: List[str] = []
 
     async def _execute_step(
         self,
@@ -62,8 +64,18 @@ class StepHandler:
         if inspect.isawaitable(result):
             result = await result
 
-        # Store result
+        # Store result and track step
         self.step_results[step_id] = result
+        self.executed_steps.append(step_id)
+
+        # Update workflow steps if workflow reference is available
+        if self.workflow and step_id not in [
+            step.get("step_id") for step in self.workflow.steps
+        ]:
+            self.workflow.steps.append(
+                {"step_id": step_id, "type": step_class.__name__}
+            )
+
         return result  # type: ignore[no-any-return]
 
     async def in_app(
@@ -138,8 +150,8 @@ class Workflow:
                 # gracefully
                 raise e
 
-        # Initialize StepHandler
-        step_handler = StepHandler(payload)
+        # Initialize StepHandler with workflow reference
+        step_handler = StepHandler(payload, workflow=self)
 
         # Execute the handler with the step handler
         # T018: Update Workflow execution engine

@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from novu_framework import workflow
+from novu_framework.constants import FRAMEWORK_VERSION, SDK_VERSION
 from novu_framework.fastapi import serve
 from novu_framework.workflow import workflow_registry
 
@@ -31,19 +32,11 @@ def test_health_check_endpoint_structure(client):
     assert response.status_code == 200
     data = response.json()
 
-    # Check top-level fields
-    assert "workflows" in data
-    assert "frameworkVersion" in data
-    assert "sdkVersion" in data
-    assert isinstance(data["workflows"], list)
-
-    # Check workflow structure
-    if len(data["workflows"]) > 0:
-        workflow = data["workflows"][0]
-        assert "workflowId" in workflow
-        assert "name" in workflow
-        assert "steps" in workflow
-        assert "payloadSchema" in workflow
+    assert data["status"] == "ok"
+    assert data["frameworkVersion"] == FRAMEWORK_VERSION
+    assert data["sdkVersion"] == SDK_VERSION
+    assert data["discovered"]["workflows"] == 1
+    assert data["discovered"]["steps"] == 0  # test_workflow has no step calls
 
 
 def test_execution_endpoint_structure(client):

@@ -31,8 +31,8 @@ def test_full_workflow_execution_via_api(client):
     response = client.get("/api/novu")
     assert response.status_code == 200
     data = response.json()
-    assert len(data["workflows"]) == 1
-    assert data["workflows"][0]["workflowId"] == "integration-workflow"
+    assert data["discovered"]["workflows"] == 1
+    assert data["discovered"]["steps"] == 1
 
     # 2. Execute workflow
     response = client.post(

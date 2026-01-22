@@ -1,3 +1,4 @@
+import inspect
 from typing import Any, Dict, List
 
 from fastapi import APIRouter, FastAPI, HTTPException
@@ -5,9 +6,9 @@ from fastapi import APIRouter, FastAPI, HTTPException
 from novu_framework.workflow import Workflow
 
 from novu_framework.validation.api import (  # isort:skip
+    Discovered,
     HealthCheckResponse,
     TriggerPayload,
-    WorkflowResponse,
 )
 
 
@@ -29,32 +30,30 @@ def serve(
         """
         Discovery endpoint for Novu Framework.
         """
-        discovered_workflows = []
+        total_workflows = len(workflow_map)
+        total_steps = 0
+
         for workflow in workflow_map.values():
-            # Note: Step discovery requires executing the workflow or analyzing code.
-            # For this MVP, we are not executing the workflow for discovery to avoid
-            # side effects or payload requirements. Steps list will be empty for now.
-            # A future improvement could be a "dry run" mode with mock payloads.
-
-            payload_schema: Dict[str, Any] = {}
-            if workflow.payload_schema:
-                try:
-                    payload_schema = workflow.payload_schema.model_json_schema()
-                except AttributeError:
-                    # Fallback if not a Pydantic V2 model or similar issue
-                    payload_schema = {}
-
-            discovered_workflows.append(
-                WorkflowResponse(
-                    workflow_id=workflow.workflow_id,
-                    name=workflow.name,
-                    payload_schema=payload_schema,
-                    steps=[],
+            # Count steps by analyzing the handler function's source code
+            try:
+                source = inspect.getsource(workflow.handler)
+                # Count step method calls (in_app, email, sms, push)
+                step_count = (
+                    source.count("await step.in_app")
+                    + source.count("await step.email")
+                    + source.count("await step.sms")
+                    + source.count("await step.push")
                 )
-            )
+                total_steps += step_count
+            except (OSError, TypeError):
+                # If we can't get source code, skip step counting for this workflow
+                pass
 
         return HealthCheckResponse(
-            workflows=discovered_workflows,
+            discovered=Discovered(
+                workflows=total_workflows,
+                steps=total_steps,
+            ),
         )
 
     @router.post("/workflows/{workflow_id}/execute")

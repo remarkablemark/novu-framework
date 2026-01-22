@@ -26,9 +26,11 @@ def test_health_check_empty_workflows(client):
     response = client.get("/api/novu")
     assert response.status_code == 200
     data = response.json()
-    assert data["workflows"] == []
+    assert data["status"] == "ok"
     assert data["frameworkVersion"] == FRAMEWORK_VERSION
     assert data["sdkVersion"] == SDK_VERSION
+    assert data["discovered"]["workflows"] == 0
+    assert data["discovered"]["steps"] == 0
 
 
 def test_health_check_with_payload_schema():
@@ -47,12 +49,8 @@ def test_health_check_with_payload_schema():
     response = client.get("/api/novu")
     assert response.status_code == 200
     data = response.json()
-    assert len(data["workflows"]) == 1
-    workflow_data = data["workflows"][0]
-    assert workflow_data["workflowId"] == "schema-workflow"
-    assert "payloadSchema" in workflow_data
-    assert workflow_data["payloadSchema"]["type"] == "object"
-    assert workflow_data["payloadSchema"]["properties"]["name"]["type"] == "string"
+    assert data["discovered"]["workflows"] == 1
+    assert data["discovered"]["steps"] == 1
 
 
 def test_health_check_payload_schema_fallback():
@@ -74,8 +72,8 @@ def test_health_check_payload_schema_fallback():
     response = client.get("/api/novu")
     assert response.status_code == 200
     data = response.json()
-    workflow_data = data["workflows"][0]
-    assert workflow_data["payloadSchema"] == {}
+    assert data["discovered"]["workflows"] == 1
+    assert data["discovered"]["steps"] == 1
 
 
 def test_execute_workflow_not_found(client):
@@ -126,5 +124,5 @@ def test_serve_with_workflow_objects():
     response = client.get("/api/novu")
     assert response.status_code == 200
     data = response.json()
-    assert len(data["workflows"]) == 1
-    assert data["workflows"][0]["workflowId"] == "direct-workflow"
+    assert data["discovered"]["workflows"] == 1
+    assert data["discovered"]["steps"] == 1

@@ -73,13 +73,8 @@ def test_quickstart_fastapi():
     response = client.get("/api/novu")
     assert response.status_code == 200
     data = response.json()
-    assert len(data["workflows"]) >= 1
-    found = False
-    for wf in data["workflows"]:
-        if wf["workflowId"] == "comment-notification":
-            found = True
-            break
-    assert found
+    assert data["discovered"]["workflows"] >= 1
+    assert data["discovered"]["steps"] >= 2  # comment_workflow has 2 steps
 
     # Test execution via API
     response = client.post(
