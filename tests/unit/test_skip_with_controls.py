@@ -1,6 +1,66 @@
 from novu_framework.workflow import StepHandler
 
 
+def test_skip_boolean_true():
+    """Test skip with boolean True value."""
+    handler = StepHandler({"test": "data"})
+
+    def test_step():
+        return {"result": "test"}
+
+    # Mock the _execute_step method to capture the options
+    captured_options = {}
+
+    def mock_execute(step_class, step_id, resolver, **options):
+        nonlocal captured_options
+        captured_options = options
+        return {"result": "executed"}
+
+    handler._execute_step = mock_execute
+
+    # Test with boolean True skip
+    handler._execute_step(
+        step_class=type("TestStep", (), {"step_type": "TEST"}),
+        step_id="skip-boolean-true",
+        resolver=test_step,
+        skip=True,
+        controls={"subject": "test"},
+    )
+
+    assert "skip" in captured_options
+    assert captured_options["skip"] is True
+
+
+def test_skip_boolean_false():
+    """Test skip with boolean False value."""
+    handler = StepHandler({"test": "data"})
+
+    def test_step():
+        return {"result": "test"}
+
+    # Mock the _execute_step method to capture the options
+    captured_options = {}
+
+    def mock_execute(step_class, step_id, resolver, **options):
+        nonlocal captured_options
+        captured_options = options
+        return {"result": "executed"}
+
+    handler._execute_step = mock_execute
+
+    # Test with boolean False skip
+    handler._execute_step(
+        step_class=type("TestStep", (), {"step_type": "TEST"}),
+        step_id="skip-boolean-false",
+        resolver=test_step,
+        skip=False,
+        controls={"subject": "test"},
+    )
+
+    assert "skip" in captured_options
+    assert captured_options["skip"] is False
+
+
 def test_skip_with_controls():
     """Test skip function that accepts controls argument."""
     handler = StepHandler({"test": "data"})

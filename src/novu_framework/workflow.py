@@ -33,19 +33,26 @@ class StepHandler:
         """
         # T019: Implement step skip logic
         skip = options.get("skip")
-        if skip and callable(skip):
-            # Get controls from options, default to empty dict if not provided
-            controls = options.get("controls", {})
+        if skip:
+            # Handle boolean skip
+            if isinstance(skip, bool):
+                should_skip = skip
+            # Handle callable skip
+            elif callable(skip):
+                # Get controls from options, default to empty dict if not provided
+                controls = options.get("controls", {})
 
-            # Try calling skip with controls first, then fallback to no args
-            try:
-                should_skip = skip(controls)
-            except TypeError:
+                # Try calling skip with controls first, then fallback to no args
                 try:
-                    should_skip = skip()
+                    should_skip = skip(controls)
                 except TypeError:
-                    # Fallback to payload
-                    should_skip = skip(self.payload)
+                    try:
+                        should_skip = skip()
+                    except TypeError:
+                        # Fallback to payload
+                        should_skip = skip(self.payload)
+            else:
+                should_skip = False
 
             # For sync version, we don't support async skip functions
             if should_skip:
