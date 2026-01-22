@@ -2,6 +2,8 @@ from typing import Any, Dict, List, Optional, Union
 
 from pydantic import BaseModel, Field
 
+from ..constants import FRAMEWORK_VERSION, SDK_VERSION
+
 
 class WorkflowResponse(BaseModel):
     """
@@ -35,12 +37,12 @@ class HealthCheckResponse(BaseModel):
         ..., description="List of available workflows"
     )
     framework_version: str = Field(
-        ...,
+        FRAMEWORK_VERSION,
         description="Version of the Novu Framework",
         serialization_alias="frameworkVersion",
     )
     sdk_version: str = Field(
-        ..., description="Version of the SDK", serialization_alias="sdkVersion"
+        SDK_VERSION, description="Version of the SDK", serialization_alias="sdkVersion"
     )
 
     model_config = {"populate_by_name": True}

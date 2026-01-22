@@ -2,7 +2,6 @@ from typing import Any, Dict, List
 
 from fastapi import APIRouter, FastAPI, HTTPException
 
-from novu_framework import __version__
 from novu_framework.workflow import Workflow
 
 from novu_framework.validation.api import (  # isort:skip
@@ -56,8 +55,6 @@ def serve(
 
         return HealthCheckResponse(
             workflows=discovered_workflows,
-            framework_version=__version__,
-            sdk_version="0.0.0",  # Placeholder
         )
 
     @router.post("/workflows/{workflow_id}/execute")

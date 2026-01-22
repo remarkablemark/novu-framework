@@ -4,6 +4,7 @@ from fastapi.testclient import TestClient
 from pydantic import BaseModel
 
 from novu_framework import workflow
+from novu_framework.constants import FRAMEWORK_VERSION, SDK_VERSION
 from novu_framework.fastapi import serve
 from novu_framework.workflow import workflow_registry
 
@@ -26,8 +27,8 @@ def test_health_check_empty_workflows(client):
     assert response.status_code == 200
     data = response.json()
     assert data["workflows"] == []
-    assert "frameworkVersion" in data
-    assert data["sdkVersion"] == "0.0.0"
+    assert data["frameworkVersion"] == FRAMEWORK_VERSION
+    assert data["sdkVersion"] == SDK_VERSION
 
 
 def test_health_check_with_payload_schema():
