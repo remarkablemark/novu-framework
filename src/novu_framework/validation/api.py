@@ -21,10 +21,12 @@ class HealthCheckResponse(BaseModel):
 
     status: str = Field(default="ok", description="Health check status")
     sdk_version: str = Field(
-        SDK_VERSION, description="Python SDK version", serialization_alias="sdkVersion"
+        default=SDK_VERSION,
+        description="Python SDK version",
+        serialization_alias="sdkVersion",
     )
     framework_version: str = Field(
-        FRAMEWORK_VERSION,
+        default=FRAMEWORK_VERSION,
         description="Novu Framework version",
         serialization_alias="frameworkVersion",
     )
