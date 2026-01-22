@@ -30,6 +30,10 @@ class CommentPayload(BaseModel):
     comment: str
     post_id: str
 
+class EmailControls(BaseModel):
+    subject: str = "New Comment"
+    include_footer: bool = True
+
 @workflow("comment-notification")
 async def comment_workflow(payload: CommentPayload, step):
     # In-app notification step
@@ -40,17 +44,10 @@ async def comment_workflow(payload: CommentPayload, step):
 
     # Email notification step
     await step.email("comment-email", lambda controls: {
-        "subject": controls.get("subject", "New Comment"),
-        "body": f"You received a new comment: {payload.comment}"
-    }, controlSchema={
-        "type": "object",
-        "properties": {
-            "subject": {
-                "type": "string",
-                "default": "New Comment"
-            }
-        }
-    })
+        "subject": controls.subject,
+        "body": f"You received a new comment: {payload.comment}",
+        "footer": "Thanks for using our app!" if controls.include_footer else ""
+    }, controlSchema=EmailControls)
 ```
 
 ### 2. Trigger the Workflow

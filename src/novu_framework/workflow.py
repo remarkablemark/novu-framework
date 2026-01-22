@@ -91,48 +91,65 @@ class StepHandler:
 
         return result  # type: ignore[no-any-return]
 
+    def _convert_control_schema(
+        self, control_schema: Union[Dict[str, Any], Type[BaseModel]]
+    ) -> Dict[str, Any]:
+        """
+        Convert control schema from Pydantic model to JSON Schema if needed.
+        """
+        if isinstance(control_schema, dict):
+            # Already a JSON schema dict, return as-is
+            return control_schema
+        elif inspect.isclass(control_schema) and issubclass(control_schema, BaseModel):
+            # Convert Pydantic model to JSON schema
+            return control_schema.model_json_schema()
+        else:
+            raise ValueError(
+                f"controlSchema must be a dict or Pydantic BaseModel class, got {type(control_schema)}"
+            )
+
     async def in_app(
         self,
         step_id: str,
         resolver: Callable[..., Any],
-        controlSchema: Optional[Dict[str, Any]] = None,
+        controlSchema: Optional[Union[Dict[str, Any], Type[BaseModel]]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
         if controlSchema is not None:
-            options["control_schema"] = controlSchema
+            options["control_schema"] = self._convert_control_schema(controlSchema)
         return await self._execute_step(InAppStep, step_id, resolver, **options)
 
     async def email(
         self,
         step_id: str,
         resolver: Callable[..., Any],
-        controlSchema: Optional[Dict[str, Any]] = None,
+        controlSchema: Optional[Union[Dict[str, Any], Type[BaseModel]]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
         if controlSchema is not None:
-            options["control_schema"] = controlSchema
+            options["control_schema"] = self._convert_control_schema(controlSchema)
         return await self._execute_step(EmailStep, step_id, resolver, **options)
 
     async def sms(
         self,
         step_id: str,
         resolver: Callable[..., Any],
-        controlSchema: Optional[Dict[str, Any]] = None,
+        controlSchema: Optional[Union[Dict[str, Any], Type[BaseModel]]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
         if controlSchema is not None:
-            options["control_schema"] = controlSchema
+            options["control_schema"] = self._convert_control_schema(controlSchema)
         return await self._execute_step(SmsStep, step_id, resolver, **options)
 
     async def push(
         self,
         step_id: str,
         resolver: Callable[..., Any],
-        controlSchema: Optional[Dict[str, Any]] = None,
+        controlSchema: Optional[Union[Dict[str, Any], Type[BaseModel]]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
         if controlSchema is not None:
-            options["control_schema"] = controlSchema
+            options["control_schema"] = self._convert_control_schema(controlSchema)
         return await self._execute_step(
             PushStep, step_id, resolver, **options
         )  # pragma: no cover
