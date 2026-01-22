@@ -25,7 +25,7 @@ class StepHandler:
         self,
         step_class: Type[Any],
         step_id: str,
-        resolver: Callable[..., Any],
+        resolver: Union[Callable[..., Any], Dict[str, Any]],
         **options: Any,
     ) -> Dict[str, Any]:
         """
@@ -43,36 +43,42 @@ class StepHandler:
                 return skipped_result
 
         # Execute resolver
-        # The resolver can be an async function or a sync function returning a dict
-        if inspect.iscoroutinefunction(resolver) or inspect.isawaitable(resolver):
-            # This check is slightly loose, normally we check if the result of calling
-            # it is awaitable. But here we haven't called it yet.
-            pass
+        # The resolver can be an async function, a sync function returning a dict, or a dict directly
+        result: Any
+        if isinstance(resolver, dict):
+            # Direct dict argument, use as-is
+            result = resolver
+        else:
+            # Handle callable resolver
+            if inspect.iscoroutinefunction(resolver) or inspect.isawaitable(resolver):
+                # This check is slightly loose, normally we check if the result of calling
+                # it is awaitable. But here we haven't called it yet.
+                pass
 
-        # Get controls from options, default to empty dict if not provided
-        controls = options.get("controls", {})
+            # Get controls from options, default to empty dict if not provided
+            controls = options.get("controls", {})
 
-        result: Any = resolver
-        if callable(resolver):
-            # Check if resolver takes args (controls, inputs, or payload)
-            # If controls are provided and non-empty, try to call with controls first
-            if controls:
-                try:
-                    result = resolver(controls)
-                except TypeError:
+            result = resolver
+            if callable(resolver):
+                # Check if resolver takes args (controls, inputs, or payload)
+                # If controls are provided and non-empty, try to call with controls first
+                if controls:
                     try:
-                        # Fallback to no args (previous behavior)
+                        result = resolver(controls)
+                    except TypeError:
+                        try:
+                            # Fallback to no args (previous behavior)
+                            result = resolver()
+                        except TypeError:
+                            # Final fallback to payload
+                            result = resolver(self.payload)
+                else:
+                    # No controls provided, use original behavior
+                    try:
                         result = resolver()
                     except TypeError:
-                        # Final fallback to payload
+                        # Fallback to payload
                         result = resolver(self.payload)
-            else:
-                # No controls provided, use original behavior
-                try:
-                    result = resolver()
-                except TypeError:
-                    # Fallback to payload
-                    result = resolver(self.payload)
 
         if inspect.isawaitable(result):
             result = await result
@@ -111,7 +117,7 @@ class StepHandler:
     async def in_app(
         self,
         step_id: str,
-        resolver: Callable[..., Any],
+        resolver: Union[Callable[..., Any], Dict[str, Any]],
         controlSchema: Optional[Union[Dict[str, Any], Type[BaseModel]]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
@@ -122,7 +128,7 @@ class StepHandler:
     async def email(
         self,
         step_id: str,
-        resolver: Callable[..., Any],
+        resolver: Union[Callable[..., Any], Dict[str, Any]],
         controlSchema: Optional[Union[Dict[str, Any], Type[BaseModel]]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
@@ -133,7 +139,7 @@ class StepHandler:
     async def sms(
         self,
         step_id: str,
-        resolver: Callable[..., Any],
+        resolver: Union[Callable[..., Any], Dict[str, Any]],
         controlSchema: Optional[Union[Dict[str, Any], Type[BaseModel]]] = None,
         **options: Any,
     ) -> Dict[str, Any]:
@@ -144,7 +150,7 @@ class StepHandler:
     async def push(
         self,
         step_id: str,
-        resolver: Callable[..., Any],
+        resolver: Union[Callable[..., Any], Dict[str, Any]],
         controlSchema: Optional[Union[Dict[str, Any], Type[BaseModel]]] = None,
         **options: Any,
     ) -> Dict[str, Any]:

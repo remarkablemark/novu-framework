@@ -36,13 +36,13 @@ class EmailControls(BaseModel):
 
 @workflow("comment-notification")
 async def comment_workflow(payload: CommentPayload, step):
-    # In-app notification step
-    await step.in_app("new-comment", lambda: {
+    # In-app notification step (using dict)
+    await step.in_app("new-comment", {
         "body": f"New comment: {payload.comment}",
         "action_url": f"/posts/{payload.post_id}"
     })
 
-    # Email notification step
+    # Email notification step (using lambda)
     await step.email("comment-email", lambda controls: {
         "subject": controls.subject,
         "body": f"You received a new comment: {payload.comment}",

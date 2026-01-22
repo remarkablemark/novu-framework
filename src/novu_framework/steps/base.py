@@ -12,7 +12,9 @@ class BaseStep(ABC):
     def __init__(
         self,
         step_id: str,
-        resolver: Union[Callable[..., Any], Callable[..., Awaitable[Any]]],
+        resolver: Union[
+            Callable[..., Any], Callable[..., Awaitable[Any]], Dict[str, Any]
+        ],
         options: Optional[Dict[str, Any]] = None,
     ):
         self.step_id = step_id

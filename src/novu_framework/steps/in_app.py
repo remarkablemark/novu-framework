@@ -13,7 +13,9 @@ class InAppStep(BaseStep):
     def __init__(
         self,
         step_id: str,
-        resolver: Union[Callable[..., Any], Callable[..., Awaitable[Any]]],
+        resolver: Union[
+            Callable[..., Any], Callable[..., Awaitable[Any]], Dict[str, Any]
+        ],
         options: Optional[Dict[str, Any]] = None,
     ):
         super().__init__(step_id, resolver, options)
