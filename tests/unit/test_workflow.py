@@ -55,7 +55,7 @@ async def test_workflow_trigger_with_payload_validation():
     """Test workflow trigger with payload validation."""
 
     async def handler(payload, step):
-        await step.in_app("step-1", {"message": f"Hello {payload.name}"})
+        await step.in_app("step-1", lambda: {"message": f"Hello {payload.name}"})
         return {"processed": True}
 
     _workflow = Workflow("validation-workflow", handler, PayloadSchema)

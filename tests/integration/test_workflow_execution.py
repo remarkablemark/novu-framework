@@ -9,9 +9,9 @@ async def test_multi_step_workflow_execution():
 
     @workflow("multi-step-workflow")
     async def multi_step_workflow(payload, step):
-        await step.in_app("in-app-step", {"body": "Hello"})
-        await step.email("email-step", {"subject": "Hi", "body": "There"})
-        await step.sms("sms-step", {"body": "SMS"}, skip=lambda: True)
+        await step.in_app("in-app-step", lambda: {"body": "Hello"})
+        await step.email("email-step", lambda: {"subject": "Hi", "body": "There"})
+        await step.sms("sms-step", lambda: {"body": "SMS"}, skip=lambda: True)
 
     result = await multi_step_workflow.trigger(to="user-1", payload={"some": "data"})
 
@@ -32,11 +32,13 @@ async def test_workflow_skip_logic():
     @workflow("skip-logic-workflow")
     async def skip_workflow(payload, step):
         # Should be executed
-        await step.in_app("step-1", {"val": 1}, skip=lambda: False)
+        await step.in_app("step-1", lambda: {"val": 1}, skip=lambda: False)
         # Should be skipped
-        await step.in_app("step-2", {"val": 2}, skip=lambda: True)
+        await step.in_app("step-2", lambda: {"val": 2}, skip=lambda: True)
         # Should be skipped based on payload
-        await step.in_app("step-3", {"val": 3}, skip=lambda: payload["should_skip"])
+        await step.in_app(
+            "step-3", lambda: {"val": 3}, skip=lambda: payload["should_skip"]
+        )
 
     result = await skip_workflow.trigger(to="user-1", payload={"should_skip": True})
 

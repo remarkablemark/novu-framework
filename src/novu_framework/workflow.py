@@ -81,62 +81,36 @@ class StepHandler:
     async def in_app(
         self,
         step_id: str,
-        data: Union[Callable[..., Any], Dict[str, Any]],
+        resolver: Callable[..., Any],
         **options: Any,
     ) -> Dict[str, Any]:
-        # If data is a callable (lambda/function), use it as resolver
-        # If data is a dict, use it directly as the result
-        if callable(data):
-            return await self._execute_step(InAppStep, step_id, data, **options)
-        else:
-            # Direct dictionary data - create a resolver that returns the data
-            resolver = lambda: data  # noqa: E731
-            return await self._execute_step(InAppStep, step_id, resolver, **options)
+        return await self._execute_step(InAppStep, step_id, resolver, **options)
 
     async def email(
         self,
         step_id: str,
-        data: Union[Callable[..., Any], Dict[str, Any]],
+        resolver: Callable[..., Any],
         **options: Any,
     ) -> Dict[str, Any]:
-        # If data is a callable (lambda/function), use it as resolver
-        # If data is a dict, use it directly as the result
-        if callable(data):
-            return await self._execute_step(EmailStep, step_id, data, **options)
-        else:
-            # Direct dictionary data - create a resolver that returns the data
-            resolver = lambda: data  # noqa: E731
-            return await self._execute_step(EmailStep, step_id, resolver, **options)
+        return await self._execute_step(EmailStep, step_id, resolver, **options)
 
     async def sms(
         self,
         step_id: str,
-        data: Union[Callable[..., Any], Dict[str, Any]],
+        resolver: Callable[..., Any],
         **options: Any,
     ) -> Dict[str, Any]:
-        # If data is a callable (lambda/function), use it as resolver
-        # If data is a dict, use it directly as the result
-        if callable(data):
-            return await self._execute_step(SmsStep, step_id, data, **options)
-        else:
-            # Direct dictionary data - create a resolver that returns the data
-            resolver = lambda: data  # noqa: E731
-            return await self._execute_step(SmsStep, step_id, resolver, **options)
+        return await self._execute_step(SmsStep, step_id, resolver, **options)
 
     async def push(
         self,
         step_id: str,
-        data: Union[Callable[..., Any], Dict[str, Any]],
+        resolver: Callable[..., Any],
         **options: Any,
     ) -> Dict[str, Any]:
-        # If data is a callable (lambda/function), use it as resolver
-        # If data is a dict, use it directly as the result
-        if callable(data):
-            return await self._execute_step(PushStep, step_id, data, **options)
-        else:
-            # Direct dictionary data - create a resolver that returns the data
-            resolver = lambda: data  # noqa: E731
-            return await self._execute_step(PushStep, step_id, resolver, **options)
+        return await self._execute_step(
+            PushStep, step_id, resolver, **options
+        )  # pragma: no cover
 
 
 class Workflow:

@@ -56,7 +56,7 @@ async def test_workflow_trigger_full_execution():
 
     @workflow("full-execution-workflow", payload_schema=SimpleTestPayload)
     async def full_workflow(payload: SimpleTestPayload, step):
-        await step.in_app("test-step", {"message": f"Hello {payload.name}"})
+        await step.in_app("test-step", lambda: {"message": f"Hello {payload.name}"})
         return {"processed": True}
 
     result = await full_workflow.trigger(
