@@ -1,0 +1,220 @@
+openapi: 3.0.3
+info:
+  title: Novu Framework Flask API
+  description: Flask integration API for Novu Framework workflow management
+  version: 1.0.0
+  contact:
+    name: Novu Framework
+  license:
+    name: MIT
+
+servers:
+  - url: http://localhost:5000/api/novu
+    description: Development server
+
+paths:
+  /:
+    get:
+      tags:
+        - Health
+      summary: Health check and workflow discovery
+      description: Returns system health status and discovered workflow information
+      operationId: healthCheck
+      responses:
+        "200":
+          description: Health check successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthCheckResponse"
+              examples:
+                success:
+                  summary: Successful health check
+                  value:
+                    status: ok
+                    sdkVersion: 0.1.0
+                    frameworkVersion: 0.1.0
+                    discovered:
+                      workflows: 2
+                      steps: 5
+
+  /workflows/{workflowId}/execute:
+    post:
+      tags:
+        - Workflows
+      summary: Execute a workflow
+      description: Triggers the execution of a specific workflow with provided payload
+      operationId: executeWorkflow
+      parameters:
+        - name: workflowId
+          in: path
+          required: true
+          description: ID of the workflow to execute
+          schema:
+            type: string
+            example: comment-notification
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TriggerPayload"
+            examples:
+              commentNotification:
+                summary: Comment notification workflow
+                value:
+                  to: user_123
+                  payload:
+                    comment: "Great post!"
+                    post_id: "post_456"
+                  metadata:
+                    source: "web_app"
+      responses:
+        "200":
+          description: Workflow executed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                description: Workflow execution result (varies by workflow)
+              examples:
+                success:
+                  summary: Successful execution
+                  value:
+                    status: completed
+                    steps_executed: 2
+                    results:
+                      in_app: delivered
+                      email: sent
+        "400":
+          description: Bad request - invalid payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                validationError:
+                  summary: Validation error
+                  value:
+                    detail: "Invalid payload: 'comment' is required"
+        "404":
+          description: Workflow not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                notFound:
+                  summary: Workflow not found
+                  value:
+                    detail: "Workflow 'unknown-workflow' not found"
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              examples:
+                serverError:
+                  summary: Internal error
+                  value:
+                    detail: "Internal workflow execution error"
+
+components:
+  schemas:
+    HealthCheckResponse:
+      type: object
+      required:
+        - status
+        - sdkVersion
+        - frameworkVersion
+        - discovered
+      properties:
+        status:
+          type: string
+          enum: [ok, error]
+          description: Health check status
+          example: ok
+        sdkVersion:
+          type: string
+          description: Python SDK version
+          example: 0.1.0
+        frameworkVersion:
+          type: string
+          description: Novu Framework version
+          example: 0.1.0
+        discovered:
+          $ref: "#/components/schemas/Discovered"
+
+    Discovered:
+      type: object
+      required:
+        - workflows
+        - steps
+      properties:
+        workflows:
+          type: integer
+          description: Number of available workflows
+          example: 2
+        steps:
+          type: integer
+          description: Total number of steps across all workflows
+          example: 5
+
+    TriggerPayload:
+      type: object
+      required:
+        - to
+        - payload
+      properties:
+        to:
+          oneOf:
+            - type: string
+              description: Subscriber ID
+              example: user_123
+            - type: object
+              description: Subscriber object with multiple identifiers
+              properties:
+                subscriberId:
+                  type: string
+                  example: user_123
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+        payload:
+          type: object
+          description: Workflow payload data
+          example:
+            comment: "Great post!"
+            post_id: "post_456"
+        metadata:
+          type: object
+          description: Additional metadata
+          properties:
+            source:
+              type: string
+              example: web_app
+            userAgent:
+              type: string
+              example: Mozilla/5.0...
+
+    ErrorResponse:
+      type: object
+      required:
+        - detail
+      properties:
+        detail:
+          type: string
+          description: Error description
+          example: Workflow 'unknown-workflow' not found
+
+  securitySchemes: {}
+
+security: []
+
+tags:
+  - name: Health
+    description: System health and discovery endpoints
+  - name: Workflows
+    description: Workflow execution endpoints
