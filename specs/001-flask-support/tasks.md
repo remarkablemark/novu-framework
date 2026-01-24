@@ -51,9 +51,9 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create Flask integration module structure in src/novu_framework/flask.py
-- [ ] T002 Add Flask as optional dependency to pyproject.toml with extras [flask]
-- [ ] T003 [P] Configure Flask-specific imports and type hints in src/novu_framework/flask.py
+- [x] T001 Create Flask integration module structure in src/novu_framework/flask.py
+- [x] T002 Add Flask as optional dependency to pyproject.toml with extras [flask]
+- [x] T003 [P] Configure Flask-specific imports and type hints in src/novu_framework/flask.py
 
 ---
 
@@ -63,11 +63,11 @@ description: "Task list template for feature implementation"
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Create Flask Blueprint structure for route organization in src/novu_framework/flask.py
-- [ ] T005 [P] Implement workflow registry for Flask app context in src/novu_framework/flask.py
-- [ ] T006 [P] Setup Flask error handlers with JSON response formatting in src/novu_framework/flask.py
-- [ ] T007 Create async route wrapper functions for workflow execution in src/novu_framework/flask.py
-- [ ] T008 Configure request/response validation using existing Pydantic models in src/novu_framework/flask.py
+- [x] T004 Create Flask Blueprint structure for route organization in src/novu_framework/flask.py
+- [x] T005 [P] Implement workflow registry for Flask app context in src/novu_framework/flask.py
+- [x] T006 [P] Setup Flask error handlers with JSON response formatting in src/novu_framework/flask.py
+- [x] T007 Create async route wrapper functions for workflow execution in src/novu_framework/flask.py
+- [x] T008 Configure request/response validation using existing Pydantic models in src/novu_framework/flask.py
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -83,20 +83,21 @@ description: "Task list template for feature implementation"
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T009 [P] [US1] Contract test for health check endpoint in tests/contract/test_api_contract.py
-- [ ] T010 [P] [US1] Contract test for workflow execution endpoint in tests/contract/test_api_contract.py
-- [ ] T011 [P] [US1] Integration test for Flask app setup in tests/integration/test_flask.py
-- [ ] T012 [P] [US1] Integration test for workflow discovery in tests/integration/test_flask.py
-- [ ] T013 [P] [US1] Integration test for workflow execution in tests/integration/test_flask.py
+- [x] T009 [P] [US1] Contract test for health check endpoint in tests/contract/test_api_contract.py
+- [x] T010 [P] [US1] Contract test for workflow execution endpoint in tests/contract/test_api_contract.py
+- [x] T011 [P] [US1] Integration test for Flask app setup in tests/integration/test_flask.py
+- [x] T012 [P] [US1] Integration test for workflow discovery in tests/integration/test_flask.py
+- [x] T013 [P] [US1] Integration test for workflow execution in tests/integration/test_flask.py
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement health check endpoint in src/novu_framework/flask.py (depends on T004, T008)
-- [ ] T015 [US1] Implement workflow execution endpoint in src/novu_framework/flask.py (depends on T007, T014)
-- [ ] T016 [US1] Create serve() function for Flask app integration in src/novu_framework/flask.py (depends on T005, T015)
-- [ ] T017 [US1] Add workflow discovery logic using existing AST analysis in src/novu_framework/flask.py (depends on T014)
-- [ ] T018 [US1] Implement async workflow execution within Flask context in src/novu_framework/flask.py (depends on T015, T007)
-- [ ] T019 [US1] Add comprehensive error handling for Flask routes in src/novu_framework/flask.py (depends on T006, T015, T018)
+- [x] T014 [US1] Implement health check endpoint in src/novu_framework/flask.py (depends on T004, T008)
+- [x] T015 [US1] Implement workflow execution endpoint in src/novu_framework/flask.py (depends on T007, T014)
+- [x] T016 [US1] Create serve() function for Flask app integration in src/novu_framework/flask.py (depends on T005, T015)
+- [x] T017 [US1] Add workflow discovery logic using existing AST analysis in src/novu_framework/flask.py (depends on T014)
+- [x] T018 [US1] Implement async workflow execution within Flask context in src/novu_framework/flask.py (depends on T015, T007)
+- [x] T019 [US1] Add comprehensive error handling for Flask routes in src/novu_framework/flask.py (depends on T006, T015, T018)
+- [x] T020 [US1] Document Flask example in README.md
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -110,17 +111,17 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 2 (Constitution Mandated) ⚠️
 
-- [ ] T020 [P] [US2] Integration test for existing workflow compatibility in tests/integration/test_flask.py
-- [ ] T021 [P] [US2] Integration test for workflow step controls in tests/integration/test_flask.py
-- [ ] T022 [P] [US2] Integration test for multi-step workflows in tests/integration/test_flask.py
-- [ ] T023 [P] [US2] Performance test comparing Flask vs FastAPI execution in tests/integration/test_flask.py
+- [ ] T021 [P] [US2] Integration test for existing workflow compatibility in tests/integration/test_flask.py
+- [ ] T022 [P] [US2] Integration test for workflow step controls in tests/integration/test_flask.py
+- [ ] T023 [P] [US2] Integration test for multi-step workflows in tests/integration/test_flask.py
+- [ ] T024 [P] [US2] Performance test comparing Flask vs FastAPI execution in tests/integration/test_flask.py
 
 ### Implementation for User Story 2
 
-- [ ] T024 [US2] Validate workflow registration compatibility in src/novu_framework/flask.py (depends on T016)
-- [ ] T025 [US2] Ensure step control processing works identically to FastAPI in src/novu_framework/flask.py (depends on T018, T024)
-- [ ] T026 [US2] Verify multi-step workflow execution order in src/novu_framework/flask.py (depends on T018, T025)
-- [ ] T027 [US2] Add workflow compatibility validation in src/novu_framework/flask.py (depends on T024, T025, T026)
+- [ ] T025 [US2] Validate workflow registration compatibility in src/novu_framework/flask.py (depends on T016)
+- [ ] T026 [US2] Ensure step control processing works identically to FastAPI in src/novu_framework/flask.py (depends on T018, T025)
+- [ ] T027 [US2] Verify multi-step workflow execution order in src/novu_framework/flask.py (depends on T018, T026)
+- [ ] T028 [US2] Add workflow compatibility validation in src/novu_framework/flask.py (depends on T025, T026, T027)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -134,17 +135,17 @@ description: "Task list template for feature implementation"
 
 ### Tests for User Story 3 (Constitution Mandated) ⚠️
 
-- [ ] T028 [P] [US3] Unit test for 404 workflow not found errors in tests/unit/test_flask.py
-- [ ] T029 [P] [US3] Unit test for 400 validation errors in tests/unit/test_flask.py
-- [ ] T030 [P] [US3] Unit test for 500 internal server errors in tests/unit/test_flask.py
-- [ ] T031 [P] [US3] Integration test for error response format consistency in tests/integration/test_flask.py
+- [ ] T029 [P] [US3] Unit test for 404 workflow not found errors in tests/unit/test_flask.py
+- [ ] T030 [P] [US3] Unit test for 400 validation errors in tests/unit/test_flask.py
+- [ ] T031 [P] [US3] Unit test for 500 internal server errors in tests/unit/test_flask.py
+- [ ] T032 [P] [US3] Integration test for error response format consistency in tests/integration/test_flask.py
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement 404 error handling for missing workflows in src/novu_framework/flask.py (depends on T015)
-- [ ] T033 [US3] Implement 400 error handling for payload validation in src/novu_framework/flask.py (depends on T008, T032)
-- [ ] T034 [US3] Implement 500 error handling for internal workflow errors in src/novu_framework/flask.py (depends on T018, T033)
-- [ ] T035 [US3] Ensure error response format matches FastAPI exactly in src/novu_framework/flask.py (depends on T032, T033, T034)
+- [ ] T033 [US3] Implement 404 error handling for missing workflows in src/novu_framework/flask.py (depends on T015)
+- [ ] T034 [US3] Implement 400 error handling for payload validation in src/novu_framework/flask.py (depends on T008, T033)
+- [ ] T035 [US3] Implement 500 error handling for internal workflow errors in src/novu_framework/flask.py (depends on T018, T034)
+- [ ] T036 [US3] Ensure error response format matches FastAPI exactly in src/novu_framework/flask.py (depends on T033, T034, T035)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -154,13 +155,13 @@ description: "Task list template for feature implementation"
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T036 [P] Add comprehensive docstrings to Flask integration module in src/novu_framework/flask.py
-- [ ] T037 [P] Create unit tests for Flask module helper functions in tests/unit/test_flask.py
-- [ ] T038 [P] Add performance benchmarks for Flask integration in tests/integration/test_flask.py
-- [ ] T039 Update README.md with Flask integration examples
-- [ ] T040 Validate quickstart.md examples work with actual Flask implementation
-- [ ] T041 Add Flask integration to package documentation
-- [ ] T042 Run full test suite to ensure 100% coverage and compatibility
+- [ ] T037 [P] Add comprehensive docstrings to Flask integration module in src/novu_framework/flask.py
+- [ ] T038 [P] Create unit tests for Flask module helper functions in tests/unit/test_flask.py
+- [ ] T039 [P] Add performance benchmarks for Flask integration in tests/integration/test_flask.py
+- [ ] T040 Update README.md with Flask integration examples
+- [ ] T041 Validate quickstart.md examples work with actual Flask implementation
+- [ ] T042 Add Flask integration to package documentation
+- [ ] T043 Run full test suite to ensure 100% coverage and compatibility
 
 ---
 
