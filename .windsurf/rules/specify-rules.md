@@ -22,6 +22,8 @@ Auto-generated from all feature plans. Last updated: 2026-01-20
 ## Active Technologies
 - Python 3.10+ + Flask, Flask's async support, existing novu-framework core (001-flask-support)
 - N/A (stateless web endpoints) (001-flask-support)
+- Python 3.11+ + FastAPI, Flask (existing), Pydantic (existing) (001-get-request-handler)
+- N/A (in-memory workflow registry) (001-get-request-handler)
 
 - Python 3.10+ (001-python-framework)
 
@@ -54,6 +56,7 @@ source .venv/bin/activate && cd src [ONLY COMMANDS FOR ACTIVE TECHNOLOGIES][ONLY
 - Performance tests for high-volume scenarios
 
 ## Recent Changes
+- 001-get-request-handler: Added Python 3.11+ + FastAPI, Flask (existing), Pydantic (existing)
 - 001-flask-support: Added Python 3.10+ + Flask, Flask's async support, existing novu-framework core
 
 - 001-python-framework: Added Python 3.10+
