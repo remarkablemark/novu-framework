@@ -82,7 +82,7 @@ description: "Implementation tasks for Python Framework Package"
 
 - [x] T022 [P] [US3] Create API contract models in src/novu_framework/validation/api.py
 - [x] T023 [US3] Implement serve() function in src/novu_framework/fastapi.py
-- [x] T024 [US3] Implement route handlers for workflow discovery and execution in src/novu_framework/fastapi.py
+- [x] T024 [US3] Implement route handlers for workflow health check and execution in src/novu_framework/fastapi.py
 - [x] T025 [US3] Contract test for API endpoints in tests/contract/test_api_contract.py
 - [x] T026 [US3] Integration test with FastAPI app in tests/integration/test_fastapi.py
 

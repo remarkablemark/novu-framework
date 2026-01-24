@@ -25,18 +25,20 @@ def client():
 
 def test_health_check_endpoint_structure(client):
     """
-    Test that the discovery endpoint returns the correct structure matching
+    Test that the health check endpoint returns the correct structure matching
     HealthCheckResponse.
     """
     response = client.get("/api/novu")
     assert response.status_code == 200
     data = response.json()
 
-    assert data["status"] == "ok"
-    assert data["frameworkVersion"] == FRAMEWORK_VERSION
-    assert data["sdkVersion"] == SDK_VERSION
-    assert data["discovered"]["workflows"] == 1
-    assert data["discovered"]["steps"] == 0  # test_workflow has no step calls
+    expected = {
+        "status": "ok",
+        "frameworkVersion": FRAMEWORK_VERSION,
+        "sdkVersion": SDK_VERSION,
+        "discovered": {"workflows": 1, "steps": 0},
+    }
+    assert data == expected
 
 
 def test_execution_endpoint_structure(client):

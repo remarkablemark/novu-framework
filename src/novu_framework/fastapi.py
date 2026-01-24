@@ -68,7 +68,7 @@ def serve(
     @router.get("", response_model=HealthCheckResponse)
     async def health_check() -> HealthCheckResponse:
         """
-        Discovery endpoint for Novu Framework.
+        Health check endpoint for Novu Framework.
         """
         total_workflows = len(workflow_map)
         total_steps = 0

@@ -22,19 +22,21 @@ def client():
 
 
 def test_health_check_empty_workflows(client):
-    """Test discovery endpoint with no workflows."""
+    """Test health check endpoint with no workflows."""
     response = client.get("/api/novu")
     assert response.status_code == 200
     data = response.json()
-    assert data["status"] == "ok"
-    assert data["frameworkVersion"] == FRAMEWORK_VERSION
-    assert data["sdkVersion"] == SDK_VERSION
-    assert data["discovered"]["workflows"] == 0
-    assert data["discovered"]["steps"] == 0
+    expected = {
+        "status": "ok",
+        "frameworkVersion": FRAMEWORK_VERSION,
+        "sdkVersion": SDK_VERSION,
+        "discovered": {"workflows": 0, "steps": 0},
+    }
+    assert data == expected
 
 
 def test_health_check_with_payload_schema():
-    """Test discovery endpoint with workflow that has payload schema."""
+    """Test health check endpoint with workflow that has payload schema."""
     workflow_registry.clear()
     app = FastAPI()
 
@@ -54,7 +56,7 @@ def test_health_check_with_payload_schema():
 
 
 def test_health_check_payload_schema_fallback():
-    """Test discovery endpoint with workflow that has non-Pydantic payload schema."""
+    """Test health check endpoint with workflow that has non-Pydantic payload schema."""
     workflow_registry.clear()
     app = FastAPI()
 

@@ -16,7 +16,7 @@ class Discovered(BaseModel):
 
 class HealthCheckResponse(BaseModel):
     """
-    Response model for the root discovery endpoint.
+    Response model for the root health check endpoint.
     """
 
     status: str = Field(default="ok", description="Health check status")

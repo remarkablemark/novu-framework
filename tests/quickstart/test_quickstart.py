@@ -69,7 +69,7 @@ def test_quickstart_fastapi():
 
     client = TestClient(app)
 
-    # Test discovery
+    # Test health check
     response = client.get("/api/novu")
     assert response.status_code == 200
     data = response.json()
