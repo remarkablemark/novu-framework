@@ -1,11 +1,15 @@
 import pytest
 
 from novu_framework import workflow
+from novu_framework.workflow import workflow_registry
 
 
 @pytest.mark.asyncio
 async def test_multi_step_workflow_execution():
     """Test execution of a workflow with multiple steps."""
+
+    # Clear registry before test
+    workflow_registry.clear()
 
     @workflow("multi-step-workflow")
     def multi_step_workflow(payload, step):
@@ -28,6 +32,9 @@ async def test_multi_step_workflow_execution():
 @pytest.mark.asyncio
 async def test_workflow_skip_logic():
     """Test dynamic skip logic in steps."""
+
+    # Clear registry before test
+    workflow_registry.clear()
 
     @workflow("skip-logic-workflow")
     def skip_workflow(payload, step):

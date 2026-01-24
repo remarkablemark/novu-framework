@@ -128,3 +128,43 @@ def test_serve_with_workflow_objects():
     data = response.json()
     assert data["discovered"]["workflows"] == 1
     assert data["discovered"]["steps"] == 1
+
+
+def test_count_steps_in_workflow_empty_lines():
+    """Test count_steps_in_workflow when func_lines is empty."""
+    from unittest.mock import patch
+
+    from novu_framework.fastapi import count_steps_in_workflow
+    from novu_framework.workflow import Workflow
+
+    workflow = Workflow("test-workflow", lambda: None)
+
+    # Mock inspect.getsource to return source with function definition at the end (no body lines)
+    with patch("inspect.getsource", return_value="def test_function():"):
+        count = count_steps_in_workflow(workflow)
+        assert count == 0
+
+
+def test_count_steps_in_workflow_exceptions():
+    """Test count_steps_in_workflow exception handling."""
+    from unittest.mock import patch
+
+    from novu_framework.fastapi import count_steps_in_workflow
+    from novu_framework.workflow import Workflow
+
+    workflow = Workflow("test-workflow", lambda: None)
+
+    # Test OSError
+    with patch("inspect.getsource", side_effect=OSError("Cannot read source")):
+        count = count_steps_in_workflow(workflow)
+        assert count == 0
+
+    # Test TypeError
+    with patch("inspect.getsource", side_effect=TypeError("Invalid type")):
+        count = count_steps_in_workflow(workflow)
+        assert count == 0
+
+    # Test SyntaxError
+    with patch("inspect.getsource", return_value="invalid syntax"):
+        count = count_steps_in_workflow(workflow)
+        assert count == 0

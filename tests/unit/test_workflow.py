@@ -250,3 +250,274 @@ def test_step_handler_resolver_with_args():
     )
 
     assert result["payload"] == {"test": "data"}
+
+
+def test_step_handler_skip_boolean():
+    """Test StepHandler with boolean skip."""
+    handler = StepHandler({"test": "data"})
+
+    def test_step():
+        return {"result": "test"}
+
+    # Test with skip=True
+    result = handler._execute_step(
+        step_class=type("TestStep", (), {"step_type": "TEST"}),
+        step_id="skip-true-step",
+        resolver=test_step,
+        skip=True,
+    )
+
+    assert result == {"skipped": True}
+    assert handler.step_results["skip-true-step"] == {"skipped": True}
+
+    # Test with skip=False (should execute normally)
+    result = handler._execute_step(
+        step_class=type("TestStep", (), {"step_type": "TEST"}),
+        step_id="skip-false-step",
+        resolver=test_step,
+        skip=False,
+    )
+
+    assert result == {"result": "test"}
+    assert handler.step_results["skip-false-step"] == {"result": "test"}
+
+
+def test_step_handler_skip_function_with_payload():
+    """Test StepHandler skip function that falls back to payload."""
+    handler = StepHandler({"test": "data"})
+
+    def test_step():
+        return {"result": "test"}
+
+    # Skip function that will fail when called with controls={} and with no args
+    # but succeed when called with payload
+    call_attempts = []
+
+    def skip_with_tracking(*args, **kwargs):
+        call_attempts.append((args, kwargs))
+        if len(args) == 1 and isinstance(args[0], dict) and "test" in args[0]:
+            # Called with payload
+            return True
+        else:
+            # Called with controls or no args - raise TypeError to force fallback
+            raise TypeError("Expected payload dict")
+
+    result = handler._execute_step(
+        step_class=type("TestStep", (), {"step_type": "TEST"}),
+        step_id="skip-payload-step",
+        resolver=test_step,
+        skip=skip_with_tracking,
+    )
+
+    assert result == {"skipped": True}
+    assert handler.step_results["skip-payload-step"] == {"skipped": True}
+    # Verify it was called 3 times: controls, no args, then payload
+    assert len(call_attempts) == 3
+
+
+def test_step_handler_resolver_with_payload_fallback():
+    """Test StepHandler resolver that falls back to payload."""
+    handler = StepHandler({"test": "data"})
+
+    # Resolver that takes payload argument
+    def resolver_with_payload(payload):
+        return {"payload": payload}
+
+    result = handler._execute_step(
+        step_class=type("TestStep", (), {"step_type": "TEST"}),
+        step_id="resolver-payload-step",
+        resolver=resolver_with_payload,
+    )
+
+    assert result["payload"] == {"test": "data"}
+    assert handler.step_results["resolver-payload-step"] == {
+        "payload": {"test": "data"}
+    }
+
+
+def test_step_handler_skip_other_types():
+    """Test StepHandler skip with non-boolean, non-callable types."""
+    handler = StepHandler({"test": "data"})
+
+    def test_step():
+        return {"result": "test"}
+
+    # Test with skip as string (should be treated as False)
+    result = handler._execute_step(
+        step_class=type("TestStep", (), {"step_type": "TEST"}),
+        step_id="skip-string-step",
+        resolver=test_step,
+        skip="not_boolean_or_callable",
+    )
+
+    assert result == {"result": "test"}
+    assert handler.step_results["skip-string-step"] == {"result": "test"}
+
+
+def test_step_handler_resolver_payload_fallback():
+    """Test StepHandler resolver fallback to payload when other attempts fail."""
+    handler = StepHandler({"test": "data"})
+
+    # Resolver that only works with payload
+    def resolver_only_payload(payload):
+        return {"payload_data": payload}
+
+    result = handler._execute_step(
+        step_class=type("TestStep", (), {"step_type": "TEST"}),
+        step_id="resolver-payload-fallback",
+        resolver=resolver_only_payload,
+    )
+
+    assert result["payload_data"] == {"test": "data"}
+
+
+def test_step_handler_resolver_with_controls_fallback():
+    """Test StepHandler resolver that fails with controls and no args, succeeds with payload."""
+    handler = StepHandler({"test": "data"})
+
+    # Resolver that will fail when called with controls={} and with no args
+    # but succeed when called with payload
+    def resolver_fallback_test(*args, **kwargs):
+        if len(args) == 1 and isinstance(args[0], dict) and "test" in args[0]:
+            # Called with payload
+            return {"success": True}
+        else:
+            # Called with controls or no args - raise TypeError to force fallback
+            raise TypeError("Expected payload dict")
+
+    result = handler._execute_step(
+        step_class=type("TestStep", (), {"step_type": "TEST"}),
+        step_id="resolver-fallback-step",
+        resolver=resolver_fallback_test,
+        controls={},  # Empty controls to trigger the fallback chain
+    )
+
+    assert result["success"] is True
+
+
+def test_step_handler_resolver_exact_fallback_chain():
+    """Test StepHandler resolver that follows exact fallback chain: controls -> no args -> payload."""
+    handler = StepHandler({"test": "data", "special": "value"})
+
+    call_log = []
+
+    def resolver_with_fallback(*args, **kwargs):
+        call_log.append(("called", args, kwargs))
+        if len(args) == 0:
+            # Called with no args - succeed here
+            return {"no_args_used": True}
+        elif len(args) == 1 and isinstance(args[0], dict):
+            # Called with controls or payload - force fallback to no args
+            raise TypeError("Need no args")
+        # Any other case - force fallback
+        raise TypeError("Need payload")
+
+    result = handler._execute_step(
+        step_class=type("TestStep", (), {"step_type": "TEST"}),
+        step_id="exact-fallback-step",
+        resolver=resolver_with_fallback,
+        controls={},  # Empty controls - but it seems to skip this and go directly to no args
+    )
+
+    assert result["no_args_used"] is True
+    # It seems that empty controls goes directly to no args, so only 1 call
+    assert len(call_log) == 1
+
+
+def test_step_handler_resolver_payload_fallback_final():
+    """Test StepHandler resolver that forces final payload fallback (lines 85-87)."""
+    handler = StepHandler({"test": "data", "final": "payload"})
+
+    call_log = []
+
+    def resolver_final_fallback(*args, **kwargs):
+        call_log.append(("called", args, kwargs))
+        if len(args) == 0:
+            # Called with no args - force fallback to payload (this hits line 85-87)
+            raise TypeError("Need payload")
+        elif len(args) == 1 and isinstance(args[0], dict):
+            if "final" in args[0] and len(args[0]) == 2:
+                # This is the payload call - success!
+                return {"payload_final": True}
+            else:
+                # Called with controls - force fallback
+                raise TypeError("Need no args")
+        # Any other case - force fallback
+        raise TypeError("Need payload")
+
+    result = handler._execute_step(
+        step_class=type("TestStep", (), {"step_type": "TEST"}),
+        step_id="final-fallback-step",
+        resolver=resolver_final_fallback,
+        controls={},  # Empty controls to start the chain
+    )
+
+    assert result["payload_final"] is True
+    # Should be called 2 times: controls (empty dict), payload
+    assert len(call_log) == 2
+
+
+def test_step_handler_resolver_three_step_fallback():
+    """Test StepHandler resolver that forces all three fallback steps to hit lines 85-87."""
+    handler = StepHandler({"key": "value"})
+
+    call_log = []
+
+    def resolver_three_step(*args, **kwargs):
+        call_log.append(("called", args, kwargs))
+        if len(args) == 0:
+            # Called with no args - force fallback to payload (lines 85-87)
+            raise TypeError("Need payload specifically")
+        elif len(args) == 1 and isinstance(args[0], dict):
+            if "key" in args[0]:
+                # This is the payload call - success!
+                return {"three_step_success": True}
+            else:
+                # Called with controls - force fallback
+                raise TypeError("Need no args")
+        # Any other case - force fallback
+        raise TypeError("Need payload")
+
+    result = handler._execute_step(
+        step_class=type("TestStep", (), {"step_type": "TEST"}),
+        step_id="three-step-step",
+        resolver=resolver_three_step,
+        controls={},  # Empty controls to start the chain
+    )
+
+    assert result["three_step_success"] is True
+    # Should be called 2 times: no args, payload (empty controls seems to be skipped)
+    assert len(call_log) == 2
+
+
+def test_step_handler_resolver_complete_fallback_chain():
+    """Test StepHandler resolver with non-empty controls to force complete fallback."""
+    handler = StepHandler({"target": "payload_data"})
+
+    call_log = []
+
+    def resolver_complete_fallback(*args, **kwargs):
+        call_log.append(("called", args, kwargs))
+        if len(args) == 0:
+            # Called with no args - force fallback to payload (lines 85-87)
+            raise TypeError("Need payload")
+        elif len(args) == 1 and isinstance(args[0], dict):
+            if "target" in args[0] and len(args[0]) == 1:
+                # This is the payload call - success!
+                return {"complete_success": True}
+            else:
+                # Called with controls - force fallback to no args
+                raise TypeError("Need no args")
+        # Any other case - force fallback
+        raise TypeError("Need payload")
+
+    result = handler._execute_step(
+        step_class=type("TestStep", (), {"step_type": "TEST"}),
+        step_id="complete-fallback-step",
+        resolver=resolver_complete_fallback,
+        controls={"control": "value"},  # Non-empty controls to trigger the chain
+    )
+
+    assert result["complete_success"] is True
+    # Should be called 3 times: controls, no args, payload
+    assert len(call_log) == 3

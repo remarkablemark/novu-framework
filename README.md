@@ -20,7 +20,7 @@ pip install novu-framework
 
 ## Quick Start
 
-### 1. Define a Workflow
+### Define Workflow
 
 ```python
 from novu_framework import workflow
@@ -50,7 +50,7 @@ def comment_workflow(payload: CommentPayload, step):
     }, controlSchema=EmailControls)
 ```
 
-### 2. Trigger the Workflow
+### Trigger Workflow
 
 ```python
 await comment_workflow.trigger(
@@ -62,7 +62,7 @@ await comment_workflow.trigger(
 )
 ```
 
-### 3. Serve via FastAPI
+### Serve with FastAPI
 
 ```python
 from fastapi import FastAPI
@@ -72,12 +72,23 @@ app = FastAPI()
 serve(app, route="/api/novu", workflows=[comment_workflow])
 ```
 
+### Serve with Flask
+
+```python
+from flask import Flask
+from novu_framework.flask import serve
+
+app = Flask(__name__)
+serve(app, route="/api/novu", workflows=[comment_workflow])
+```
+
 ## Features
 
 - **Code-First Workflows**: Define workflows using Python functions and decorators.
 - **Type Safety**: Built-in support for Pydantic models for payload validation.
 - **Multi-Channel Support**: Support for In-App, Email, SMS, and Push notifications.
 - **FastAPI Integration**: Seamlessly integrate with FastAPI applications.
+- **Flask Integration**: Seamlessly integrate with Flask applications.
 
 ## License
 
