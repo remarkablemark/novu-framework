@@ -243,3 +243,58 @@ class TestServe:
             data = response.get_json()
             assert "detail" in data
             assert "Internal error" in data["detail"]
+
+
+class TestCountStepsInWorkflowEdgeCases:
+    """Test edge cases for count_steps_in_workflow function."""
+
+    def test_count_steps_empty_lines(self):
+        """Test counting steps when func_lines is empty."""
+        workflow = MagicMock(spec=Workflow)
+        workflow.handler = MagicMock()
+
+        with patch("inspect.getsource", return_value="def test_function():"):
+            count = count_steps_in_workflow(workflow)
+            assert count == 0
+
+
+class TestFlaskValidationErrorHandling:
+    """Test ValidationError handling in Flask endpoints."""
+
+    def test_workflow_execution_validation_error(self):
+        """Test workflow execution with Pydantic ValidationError."""
+        from flask import Flask
+        from pydantic import ValidationError
+
+        app = Flask(__name__)
+        workflow = MagicMock(spec=Workflow)
+        workflow.workflow_id = "test-workflow"
+        workflow._workflow = workflow
+
+        serve(app, workflows=[workflow])
+
+        with app.test_client() as client:
+            # Create a ValidationError that will trigger the exact error handling code
+            validation_error = ValidationError.from_exception_data(
+                "Validation failed",
+                [{"loc": ("to",), "msg": "field required", "type": "missing"}],
+            )
+
+            # Mock the TriggerPayload to raise ValidationError
+            with patch(
+                "novu_framework.flask.TriggerPayload", side_effect=validation_error
+            ):
+                response = client.post(
+                    "/api/novu/workflows/test-workflow/execute",
+                    json={
+                        "to": "test",
+                        "payload": {},
+                    },  # Valid JSON but will fail validation
+                )
+
+                assert response.status_code == 400
+                data = response.get_json()
+                assert "detail" in data
+                # Verify the specific ValidationError handling logic
+                assert "Validation error:" in data["detail"]
+                assert "to: Field required" in data["detail"]

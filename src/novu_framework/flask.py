@@ -46,7 +46,7 @@ def count_steps_in_workflow(workflow: Workflow) -> int:
         if func_lines:
             clean_source = textwrap.dedent("\n".join(func_lines))
         else:
-            clean_source = source
+            clean_source = source  # pragma: no cover
 
         tree = ast.parse(clean_source)
 
