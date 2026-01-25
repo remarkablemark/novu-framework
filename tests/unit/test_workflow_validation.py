@@ -9,8 +9,7 @@ class ValidationPayload(BaseModel):
     age: int
 
 
-@pytest.mark.asyncio
-async def test_workflow_trigger_validation_error():
+def test_workflow_trigger_validation_error():
     """Test workflow trigger with payload validation error."""
 
     def handler(payload, step):
@@ -20,15 +19,14 @@ async def test_workflow_trigger_validation_error():
 
     # Test with invalid payload that should raise ValidationError
     with pytest.raises(ValidationError):
-        await workflow_obj.trigger(
+        workflow_obj.trigger(
             to="user-123",
             payload={"age": 30},  # Missing required 'name' field
             metadata={"source": "test"},
         )
 
 
-@pytest.mark.asyncio
-async def test_workflow_trigger_without_schema():
+def test_workflow_trigger_without_schema():
     """Test workflow trigger without payload schema (uses raw dict)."""
 
     def handler(payload, step):
@@ -39,7 +37,7 @@ async def test_workflow_trigger_without_schema():
 
     workflow_obj = Workflow("no-schema-workflow", handler)
 
-    result = await workflow_obj.trigger(
+    result = workflow_obj.trigger(
         to="user-123",
         payload={"name": "Test User", "extra": "data"},
         metadata={"source": "test"},

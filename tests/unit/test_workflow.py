@@ -51,7 +51,7 @@ def test_workflow_initialization_minimal():
     assert _workflow.name == "minimal-workflow"
 
 
-async def test_workflow_trigger_with_payload_validation():
+def test_workflow_trigger_with_payload_validation():
     """Test workflow trigger with payload validation."""
 
     def handler(payload, step):
@@ -60,7 +60,7 @@ async def test_workflow_trigger_with_payload_validation():
 
     _workflow = Workflow("validation-workflow", handler, PayloadSchema)
 
-    await _workflow.trigger(
+    _workflow.trigger(
         to="user-123", payload={"name": "John", "age": 30}, metadata={"source": "test"}
     )
 

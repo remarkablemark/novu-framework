@@ -94,7 +94,7 @@ def test_execute_workflow_with_error():
     app = FastAPI()
 
     @workflow("error-workflow")
-    async def error_workflow(payload, step):
+    def error_workflow(payload, step):
         raise ValueError("Test error")
 
     serve(app, workflows=[error_workflow])

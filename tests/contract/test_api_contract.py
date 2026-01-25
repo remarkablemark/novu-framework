@@ -12,13 +12,12 @@ from novu_framework.workflow import workflow_registry
 
 @pytest.fixture
 def client():
-    # Clear registry to avoid conflicts
     workflow_registry.clear()
 
     app = FastAPI()
 
     @workflow("test-workflow")
-    async def test_workflow(payload, step):
+    def test_workflow(payload, step):
         pass
 
     serve(app, workflows=[test_workflow])
@@ -65,13 +64,12 @@ def test_execution_endpoint_structure(client):
 
 @pytest.fixture
 def flask_client():
-    # Clear registry to avoid conflicts
     workflow_registry.clear()
 
     app = Flask(__name__)
 
     @workflow("test-workflow-flask")
-    async def test_workflow_flask(payload, step):
+    def test_workflow_flask(payload, step):
         pass
 
     flask_serve(app, workflows=[test_workflow_flask])

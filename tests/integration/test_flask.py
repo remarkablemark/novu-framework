@@ -18,12 +18,12 @@ def flask_app():
     app = Flask(__name__)
 
     @workflow("integration-test-workflow")
-    async def integration_workflow(payload, step):
+    def integration_workflow(payload, step):
         step.in_app("test-notification", {"message": "test message"})
         return {"status": "completed", "workflow_id": "integration-test-workflow"}
 
     @workflow("multi-step-workflow")
-    async def multi_step_workflow(payload, step):
+    def multi_step_workflow(payload, step):
         step.in_app("step1", {"message": "step 1"})
         step.email("step2", lambda: {"subject": "test", "body": "test body"})
         return {"status": "completed", "workflow_id": "multi-step-workflow"}

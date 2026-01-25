@@ -1,11 +1,8 @@
-import pytest
-
 from novu_framework import workflow
 from novu_framework.workflow import workflow_registry
 
 
-@pytest.mark.asyncio
-async def test_multi_step_workflow_execution():
+def test_multi_step_workflow_execution():
     """Test execution of a workflow with multiple steps."""
 
     # Clear registry before test
@@ -17,7 +14,7 @@ async def test_multi_step_workflow_execution():
         step.email("email-step", lambda: {"subject": "Hi", "body": "There"})
         step.sms("sms-step", lambda: {"body": "SMS"}, skip=lambda: True)
 
-    result = await multi_step_workflow.trigger(to="user-1", payload={"some": "data"})
+    result = multi_step_workflow.trigger(to="user-1", payload={"some": "data"})
 
     assert result["status"] == "completed"
     assert result["workflow_id"] == "multi-step-workflow"
@@ -29,8 +26,7 @@ async def test_multi_step_workflow_execution():
     assert result["step_results"]["sms-step"] == {"skipped": True}
 
 
-@pytest.mark.asyncio
-async def test_workflow_skip_logic():
+def test_workflow_skip_logic():
     """Test dynamic skip logic in steps."""
 
     # Clear registry before test
@@ -45,7 +41,7 @@ async def test_workflow_skip_logic():
         # Should be skipped based on payload
         step.in_app("step-3", lambda: {"val": 3}, skip=lambda: payload["should_skip"])
 
-    result = await skip_workflow.trigger(to="user-1", payload={"should_skip": True})
+    result = skip_workflow.trigger(to="user-1", payload={"should_skip": True})
 
     results = result["step_results"]
     assert results["step-1"] == {"val": 1}

@@ -2,7 +2,7 @@
 Unit tests for Flask integration module.
 """
 
-from unittest.mock import AsyncMock, MagicMock, patch
+from unittest.mock import MagicMock, patch
 
 from novu_framework.flask import count_steps_in_workflow, serve
 from novu_framework.workflow import Workflow
@@ -159,7 +159,7 @@ class TestServe:
         workflow = MagicMock(spec=Workflow)
         workflow.workflow_id = "test-workflow"
         workflow._workflow = workflow
-        workflow.trigger = AsyncMock(return_value={"status": "completed"})
+        workflow.trigger = MagicMock(return_value={"status": "completed"})
 
         mock_count_steps.return_value = 1
 
@@ -227,7 +227,7 @@ class TestServe:
         workflow = MagicMock(spec=Workflow)
         workflow.workflow_id = "test-workflow"
         workflow._workflow = workflow
-        workflow.trigger = AsyncMock(side_effect=Exception("Internal error"))
+        workflow.trigger = MagicMock(side_effect=Exception("Internal error"))
 
         mock_count_steps.return_value = 1
 

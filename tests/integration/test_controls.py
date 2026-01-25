@@ -38,7 +38,7 @@ async def test_workflow_with_controls_integration():
         )
 
     # Trigger the workflow
-    result = await comment_workflow.trigger(
+    result = comment_workflow.trigger(
         to="subscriber_id_123",
         payload={"comment": "This is a great post!", "post_id": "post_id_456"},
     )
@@ -75,9 +75,7 @@ async def test_workflow_with_controls_default_values():
         )
 
     # Trigger without providing controls (should use defaults)
-    result = await test_workflow.trigger(
-        to="subscriber_id_123", payload={"test": "data"}
-    )
+    result = test_workflow.trigger(to="subscriber_id_123", payload={"test": "data"})
 
     email_result = result["step_results"]["test-email"]
     assert email_result["subject"] == "Default Subject"
