@@ -53,7 +53,7 @@ def comment_workflow(payload: CommentPayload, step):
 ### Trigger Workflow
 
 ```python
-await comment_workflow.trigger(
+comment_workflow.trigger(
     to="subscriber_id_123",
     payload={
         "comment": "This is a great post!",

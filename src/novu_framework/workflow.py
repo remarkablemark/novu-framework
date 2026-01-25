@@ -190,7 +190,7 @@ class Workflow:
         self.name = name or workflow_id
         self.steps: List[Any] = []
 
-    async def trigger(
+    def trigger(
         self,
         to: str | Dict[str, Any],
         payload: Dict[str, Any],
@@ -214,10 +214,7 @@ class Workflow:
 
         # Execute the handler with the step handler
         # T018: Update Workflow execution engine
-        result = self.handler(validated_payload, step_handler)
-        # Handle async handlers if they still exist
-        if inspect.isawaitable(result):
-            await result
+        self.handler(validated_payload, step_handler)
 
         # Return the collected results
         return {

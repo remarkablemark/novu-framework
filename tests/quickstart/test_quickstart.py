@@ -1,4 +1,3 @@
-import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from pydantic import BaseModel
@@ -38,8 +37,7 @@ def comment_workflow(payload: CommentPayload, step):
 # --- Tests ---
 
 
-@pytest.mark.asyncio
-async def test_quickstart_trigger():
+def test_quickstart_trigger():
     """Test Quickstart Example 2: Trigger Your Workflow"""
 
     # Clean registry just in case
@@ -48,7 +46,7 @@ async def test_quickstart_trigger():
     # level. Let's hope no ID conflict with other tests if run in same session,
     # but pytest collects files so module scope is usually fine if names are unique.
 
-    result = await comment_workflow.trigger(
+    result = comment_workflow.trigger(
         to="subscriber_id_123",
         payload={"comment": "This is a great post!", "post_id": "post_id_456"},
     )

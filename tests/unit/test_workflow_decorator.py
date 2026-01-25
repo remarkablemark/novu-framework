@@ -1,4 +1,3 @@
-import pytest
 from pydantic import BaseModel
 
 from novu_framework.workflow import workflow, workflow_registry
@@ -49,8 +48,7 @@ def test_workflow_decorator_with_name():
     assert workflow_obj.name == "Custom Workflow Name"
 
 
-@pytest.mark.asyncio
-async def test_workflow_trigger_full_execution():
+def test_workflow_trigger_full_execution():
     """Test full workflow trigger execution."""
     workflow_registry.clear()
 
@@ -59,7 +57,7 @@ async def test_workflow_trigger_full_execution():
         step.in_app("test-step", lambda: {"message": f"Hello {payload.name}"})
         return {"processed": True}
 
-    result = await full_workflow.trigger(
+    result = full_workflow.trigger(
         to="user-123", payload={"name": "Test User"}, metadata={"source": "test"}
     )
 

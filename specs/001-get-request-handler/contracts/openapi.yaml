@@ -1,0 +1,352 @@
+openapi: 3.0.3
+info:
+  title: Novu Framework GET API
+  description: GET request handling for Novu Python framework
+  version: 1.0.0
+  contact:
+    name: Novu Framework
+  license:
+    name: MIT
+
+paths:
+  /:
+    get:
+      summary: Execute GET action
+      description: Handles GET requests for workflow discovery, health checks, and code retrieval
+      operationId: execute_get_action
+      tags:
+        - GET Actions
+
+      parameters:
+        - name: action
+          in: query
+          description: Action to perform
+          required: false
+          schema:
+            type: string
+            enum: [discover, health-check, code]
+            default: health-check
+
+        - name: workflow_id
+          in: query
+          description: Workflow ID (required for code action)
+          required: false
+          schema:
+            type: string
+
+        - name: step_id
+          in: query
+          description: Step ID (required for code action)
+          required: false
+          schema:
+            type: string
+
+      responses:
+        "200":
+          description: Successful action execution
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/DiscoverResponse"
+                  - $ref: "#/components/schemas/HealthCheckResponse"
+                  - $ref: "#/components/schemas/CodeResponse"
+
+        "400":
+          description: Bad request - invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+        "404":
+          description: Not found - workflow or step not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Error"
+
+components:
+  schemas:
+    GetActionEnum:
+      type: string
+      enum: [discover, health-check, code]
+      description: Available GET actions
+
+    JSONSchema:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Schema type
+          example: object
+        properties:
+          type: object
+          description: Schema properties
+          additionalProperties: true
+        required:
+          type: array
+          items:
+            type: string
+          description: Required properties
+        additionalProperties:
+          type: boolean
+          description: Whether additional properties are allowed
+      description: JSON Schema definition
+
+    StepControls:
+      type: object
+      properties:
+        schema:
+          $ref: "#/components/schemas/JSONSchema"
+        unknownSchema:
+          type: object
+          description: Unknown schema representation
+          additionalProperties: true
+      description: Step input controls and validation
+
+    StepOutputs:
+      type: object
+      properties:
+        schema:
+          $ref: "#/components/schemas/JSONSchema"
+        unknownSchema:
+          type: object
+          description: Unknown schema representation
+          additionalProperties: true
+      description: Step output schema
+
+    StepResults:
+      type: object
+      properties:
+        schema:
+          $ref: "#/components/schemas/JSONSchema"
+        unknownSchema:
+          type: object
+          description: Unknown schema representation
+          additionalProperties: true
+      description: Step results schema
+
+    WorkflowStep:
+      type: object
+      properties:
+        step_id:
+          type: string
+          description: Step identifier
+          example: test-in-app
+        type:
+          type: string
+          description: Step type (in_app, chat, email, sms, push)
+          example: in_app
+        controls:
+          $ref: "#/components/schemas/StepControls"
+        outputs:
+          $ref: "#/components/schemas/StepOutputs"
+        results:
+          $ref: "#/components/schemas/StepResults"
+        code:
+          type: string
+          description: Step implementation code
+          example: '() => ({ body: "Test notification" })'
+        options:
+          type: object
+          description: Step options
+          additionalProperties: true
+        providers:
+          type: array
+          items:
+            type: string
+          description: Available providers
+      required: [step_id, type, controls, outputs, code]
+      description: Workflow step definition
+
+    WorkflowPayload:
+      type: object
+      properties:
+        schema:
+          $ref: "#/components/schemas/JSONSchema"
+        unknownSchema:
+          type: object
+          description: Unknown schema representation
+          additionalProperties: true
+      description: Workflow payload schema
+
+    WorkflowControls:
+      type: object
+      properties:
+        schema:
+          $ref: "#/components/schemas/JSONSchema"
+        unknownSchema:
+          type: object
+          description: Unknown schema representation
+          additionalProperties: true
+      description: Workflow controls schema
+
+    WorkflowDetail:
+      type: object
+      properties:
+        workflowId:
+          type: string
+          description: Workflow identifier (camelCase)
+          example: test-notification
+        severity:
+          type: string
+          description: Workflow severity level
+          example: none
+        steps:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkflowStep"
+          description: List of workflow steps
+        code:
+          type: string
+          description: Workflow implementation code
+        payload:
+          $ref: "#/components/schemas/WorkflowPayload"
+        controls:
+          $ref: "#/components/schemas/WorkflowControls"
+        tags:
+          type: array
+          items:
+            type: string
+          description: Workflow tags
+        preferences:
+          type: object
+          description: Workflow preferences
+          additionalProperties: true
+      required: [workflowId, severity, steps, code, payload, controls]
+      description: Complete workflow definition
+
+    DiscoverResponse:
+      type: object
+      properties:
+        workflows:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkflowDetail"
+          description: List of discovered workflows
+      required: [workflows]
+
+    DiscoveredWorkflows:
+      type: object
+      properties:
+        workflows:
+          type: integer
+          description: Number of discovered workflows
+          example: 1
+        steps:
+          type: integer
+          description: Total number of steps across all workflows
+          example: 2
+      required: [workflows, steps]
+
+    HealthCheckResponse:
+      type: object
+      properties:
+        status:
+          type: string
+          description: System health status
+          example: ok
+        sdk_version:
+          type: string
+          description: SDK version
+          example: "0.1.0"
+        framework_version:
+          type: string
+          description: Framework version
+          example: "2024-06-26"
+        discovered:
+          $ref: "#/components/schemas/DiscoveredWorkflows"
+      required: [status, sdk_version, framework_version, discovered]
+
+    CodeResponse:
+      type: object
+      properties:
+        code:
+          type: string
+          description: Workflow implementation code
+          example: "async ({ step, payload }) => { await step.email('send-email', () => ({ subject: 'Test' })); }"
+      required: [code]
+      description: Workflow code response
+
+    Error:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Error description
+          example: "Invalid action parameter"
+        code:
+          type: string
+          description: Error code
+          example: "INVALID_ACTION"
+      required: [detail]
+
+  examples:
+    DiscoverExample:
+      summary: Discover workflows
+      value:
+        workflows:
+          - workflow_id: "welcome-workflow"
+            name: "Welcome Email Workflow"
+            steps:
+              - step_id: "show-welcome"
+                step_type: "in_app"
+                name: "Show Welcome Message"
+              - step_id: "send-email"
+                step_type: "email"
+                name: "Send Welcome Email"
+            preference:
+              priority: "high"
+              enabled: true
+          - workflow_id: "password-reset"
+            name: "Password Reset Workflow"
+            steps:
+              - step_id: "validate-email"
+                step_type: "in_app"
+                name: "Validate Email Address"
+              - step_id: "send-reset-link"
+                step_type: "email"
+                name: "Send Reset Link"
+              - step_id: "confirm-reset"
+                step_type: "in_app"
+                name: "Confirm Password Reset"
+            preference:
+              priority: "medium"
+              enabled: true
+        has_workflows: true
+        total_workflows: 2
+        total_steps: 5
+        status: healthy
+
+    HealthCheckExample:
+      summary: Health check
+      value:
+        status: ok
+        sdk_version: "2.9.0"
+        framework_version: "2024-06-26"
+        discovered:
+          workflows: 1
+          steps: 3
+
+    CodeExample:
+      summary: Get workflow code
+      value:
+        code: "async ({ step, payload }) => {\n    await step.inApp('send-welcome', () => ({\n        body: 'Welcome to our platform!',\n    }));\n}"
+
+    ErrorExample:
+      summary: Invalid parameters
+      value:
+        detail: "workflow_id and step_id are required for code action"
+        code: "MISSING_PARAMETERS"
+
+tags:
+  - name: GET Actions
+    description: GET request handling for workflow operations

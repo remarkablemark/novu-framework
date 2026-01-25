@@ -16,7 +16,7 @@ async def test_workflow_trigger_execution():
         return {"status": "success"}
 
     payload_data = {"foo": "bar"}
-    result = await my_workflow.trigger(to="user-123", payload=payload_data)
+    result = my_workflow.trigger(to="user-123", payload=payload_data)
 
     assert execution_flag["executed"] is True
     assert execution_flag["payload"] == payload_data
