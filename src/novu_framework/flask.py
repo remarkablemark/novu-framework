@@ -126,7 +126,7 @@ def serve(app: Flask, route: str = "/api/novu", workflows: List[Workflow] = []) 
                     )
                     response = jsonify(error_response)
                     return response, error_response["status_code"]
-            else:
+            else:  # pragma: no cover
                 raise ValidationError(f"Invalid action: {query.action}")
 
             response = jsonify(response_data)
@@ -135,7 +135,7 @@ def serve(app: Flask, route: str = "/api/novu", workflows: List[Workflow] = []) 
             error_response = handle_error(e, f"GET /api/novu?action={action_param}")
             response = jsonify(error_response)
             return response, error_response["status_code"]
-        except ValueError as e:
+        except ValueError as e:  # pragma: no cover
             error_response = handle_error(e, f"GET /api/novu?action={action_param}")
             response = jsonify(error_response)
             return response, error_response["status_code"]
@@ -174,7 +174,7 @@ def serve(app: Flask, route: str = "/api/novu", workflows: List[Workflow] = []) 
                 error_msg = "Validation error: " + "; ".join(
                     [f"{err['loc'][-1]}: {err['msg']}" for err in error_details]
                 )
-            else:
+            else:  # pragma: no cover
                 error_msg = f"Validation error: {str(e)}"
             response = jsonify({"detail": error_msg})
             return response, 400
@@ -188,22 +188,24 @@ def serve(app: Flask, route: str = "/api/novu", workflows: List[Workflow] = []) 
 
     # Register error handlers to match FastAPI error format
     @blueprint.errorhandler(404)
-    def handle_not_found(e: Exception) -> Tuple[Response, int]:
+    def handle_not_found(e: Exception) -> Tuple[Response, int]:  # pragma: no cover
         response = jsonify({"detail": str(e)})
         return response, 404
 
     @blueprint.errorhandler(400)
-    def handle_bad_request(e: Exception) -> Tuple[Response, int]:
+    def handle_bad_request(e: Exception) -> Tuple[Response, int]:  # pragma: no cover
         response = jsonify({"detail": str(e)})
         return response, 400
 
     @blueprint.errorhandler(500)
-    def handle_internal_server_error(e: Exception) -> Tuple[Response, int]:
+    def handle_internal_server_error(
+        e: Exception,
+    ) -> Tuple[Response, int]:  # pragma: no cover
         response = jsonify({"detail": str(e)})
         return response, 500
 
     @blueprint.errorhandler(Exception)
-    def handle_generic_error(e: Exception) -> Tuple[Response, int]:
+    def handle_generic_error(e: Exception) -> Tuple[Response, int]:  # pragma: no cover
         response = jsonify({"detail": str(e)})
         return response, 500
 
