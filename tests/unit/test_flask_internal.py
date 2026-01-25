@@ -7,18 +7,18 @@ from flask import Flask
 
 from novu_framework import workflow
 from novu_framework.error_handling import NotFoundError, ValidationError
+from novu_framework.flask import serve
 from novu_framework.workflow import Workflow, workflow_registry
 
-from novu_framework.flask import (  # isort: skip
-    _extract_controls_schema_flask,
-    _extract_payload_schema_flask,
-    _extract_workflow_details_flask,
-    _extract_workflow_steps_flask,
-    _handle_code_flask,
-    _handle_discover_flask,
-    _handle_health_check_flask,
+from novu_framework.common import (  # isort: skip
+    extract_controls_schema as extract_controls_schema_flask,
+    extract_payload_schema as extract_payload_schema_flask,
+    extract_workflow_details as extract_workflow_details_flask,
+    extract_workflow_steps as extract_workflow_steps_flask,
+    handle_code as handle_code_flask,
+    handle_discover as handle_discover_flask,
+    handle_health_check as handle_health_check_flask,
     count_steps_in_workflow,
-    serve,
 )
 
 
@@ -85,11 +85,11 @@ class TestCountStepsInWorkflowFlask:
 
 
 class TestHandleHealthCheckFlask:
-    """Test cases for _handle_health_check_flask function."""
+    """Test cases for handle_health_check_flask function."""
 
     def test_handle_health_check_empty(self):
         """Test health check with no workflows."""
-        result = _handle_health_check_flask({})
+        result = handle_health_check_flask({})
 
         assert result["status"] == "ok"
         assert result["discovered"]["workflows"] == 0
@@ -106,7 +106,7 @@ class TestHandleHealthCheckFlask:
             return {"status": "completed"}
 
         workflow_map = {"health-check-workflow-flask": health_check_workflow._workflow}
-        result = _handle_health_check_flask(workflow_map)
+        result = handle_health_check_flask(workflow_map)
 
         assert result["status"] == "ok"
         assert result["discovered"]["workflows"] == 1
@@ -129,7 +129,7 @@ class TestHandleHealthCheckFlask:
             "with-steps-flask": with_steps_workflow._workflow,
             "without-steps-flask": without_steps_workflow._workflow,
         }
-        result = _handle_health_check_flask(workflow_map)
+        result = handle_health_check_flask(workflow_map)
 
         assert result["status"] == "ok"
         assert result["discovered"]["workflows"] == 2
@@ -137,11 +137,11 @@ class TestHandleHealthCheckFlask:
 
 
 class TestHandleDiscoverFlask:
-    """Test cases for _handle_discover_flask function."""
+    """Test cases for handle_discover_flask function."""
 
     def test_handle_discover_empty(self):
         """Test discover with no workflows."""
-        result = _handle_discover_flask({})
+        result = handle_discover_flask({})
         assert result["workflows"] == []
 
     def test_handle_discover_with_workflow(self):
@@ -154,7 +154,7 @@ class TestHandleDiscoverFlask:
             return {"status": "completed"}
 
         workflow_map = {"discover-workflow-flask": discover_workflow._workflow}
-        result = _handle_discover_flask(workflow_map)
+        result = handle_discover_flask(workflow_map)
 
         assert len(result["workflows"]) == 1
         workflow_detail = result["workflows"][0]
@@ -183,7 +183,7 @@ class TestHandleDiscoverFlask:
             "workflow-1-flask": workflow_1._workflow,
             "workflow-2-flask": workflow_2._workflow,
         }
-        result = _handle_discover_flask(workflow_map)
+        result = handle_discover_flask(workflow_map)
 
         assert len(result["workflows"]) == 2
 
@@ -204,7 +204,7 @@ class TestHandleDiscoverFlask:
 
 
 class TestHandleCodeFlask:
-    """Test cases for _handle_code_flask function."""
+    """Test cases for handle_code_flask function."""
 
     def test_handle_code_success(self):
         """Test successful code retrieval."""
@@ -216,7 +216,7 @@ class TestHandleCodeFlask:
             return {"status": "completed"}
 
         workflow_map = {"code-workflow-flask": code_workflow._workflow}
-        result = _handle_code_flask(workflow_map, "code-workflow-flask")
+        result = handle_code_flask(workflow_map, "code-workflow-flask")
 
         assert "code" in result
         assert "def code_workflow" in result["code"]
@@ -224,14 +224,14 @@ class TestHandleCodeFlask:
     def test_handle_code_missing_workflow_id(self):
         """Test code action with missing workflow_id."""
         with pytest.raises(ValidationError) as exc_info:
-            _handle_code_flask({}, None)
+            handle_code_flask({}, None)
 
         assert "workflow_id is required" in str(exc_info.value)
 
     def test_handle_code_workflow_not_found(self):
         """Test code action with non-existent workflow."""
         with pytest.raises(NotFoundError) as exc_info:
-            _handle_code_flask({}, "nonexistent-workflow")
+            handle_code_flask({}, "nonexistent-workflow")
 
         assert "not found" in str(exc_info.value)
 
@@ -241,7 +241,7 @@ class TestHandleCodeFlask:
         workflow_map = {"test-workflow": workflow_obj}
 
         with patch("inspect.getsource", side_effect=OSError("Cannot read source")):
-            result = _handle_code_flask(workflow_map, "test-workflow")
+            result = handle_code_flask(workflow_map, "test-workflow")
 
             assert (
                 result["code"]
@@ -250,7 +250,7 @@ class TestHandleCodeFlask:
 
 
 class TestExtractWorkflowDetailsFlask:
-    """Test cases for _extract_workflow_details_flask function."""
+    """Test cases for extract_workflow_details_flask function."""
 
     def test_extract_workflow_details_basic(self):
         """Test basic workflow details extraction."""
@@ -261,7 +261,7 @@ class TestExtractWorkflowDetailsFlask:
             step.email("step-1", lambda: {"message": "Hello"})
             return {"status": "completed"}
 
-        details = _extract_workflow_details_flask(
+        details = extract_workflow_details_flask(
             "detail-workflow-flask", detail_workflow._workflow
         )
 
@@ -288,7 +288,7 @@ class TestExtractWorkflowDetailsFlask:
         attributed_workflow._workflow.tags = ["test", "email"]
         attributed_workflow._workflow.preferences = {"priority": "high"}
 
-        details = _extract_workflow_details_flask(
+        details = extract_workflow_details_flask(
             "attributed-workflow-flask", attributed_workflow._workflow
         )
 
@@ -300,7 +300,7 @@ class TestExtractWorkflowDetailsFlask:
         workflow_obj = Workflow("test-workflow", lambda: None)
 
         with patch("inspect.getsource", side_effect=OSError("Cannot read source")):
-            details = _extract_workflow_details_flask("test-workflow", workflow_obj)
+            details = extract_workflow_details_flask("test-workflow", workflow_obj)
 
             assert details["workflow_id"] == "test-workflow"
             assert (
@@ -310,7 +310,7 @@ class TestExtractWorkflowDetailsFlask:
 
 
 class TestExtractWorkflowStepsFlask:
-    """Test cases for _extract_workflow_steps_flask function."""
+    """Test cases for extract_workflow_steps_flask function."""
 
     def test_extract_workflow_steps_all_types(self):
         """Test extracting steps with all supported types."""
@@ -324,7 +324,7 @@ class TestExtractWorkflowStepsFlask:
             step.chat("step-5", lambda: {"message": "Chat"})
             return {"status": "completed"}
 
-        steps = _extract_workflow_steps_flask(all_types_workflow._workflow)
+        steps = extract_workflow_steps_flask(all_types_workflow._workflow)
 
         assert len(steps) == 5
 
@@ -360,7 +360,7 @@ class TestExtractWorkflowStepsFlask:
         def no_steps_workflow(payload, step):
             return {"status": "completed"}
 
-        steps = _extract_workflow_steps_flask(no_steps_workflow._workflow)
+        steps = extract_workflow_steps_flask(no_steps_workflow._workflow)
         assert steps == []
 
     def test_extract_workflow_steps_source_exception(self):
@@ -368,7 +368,7 @@ class TestExtractWorkflowStepsFlask:
         workflow_obj = Workflow("test-workflow", lambda: None)
 
         with patch("inspect.getsource", side_effect=OSError("Cannot read source")):
-            steps = _extract_workflow_steps_flask(workflow_obj)
+            steps = extract_workflow_steps_flask(workflow_obj)
             assert steps == []
 
     def test_extract_workflow_steps_syntax_error(self):
@@ -376,27 +376,27 @@ class TestExtractWorkflowStepsFlask:
         workflow_obj = Workflow("test-workflow", lambda: None)
 
         with patch("inspect.getsource", return_value="invalid syntax"):
-            steps = _extract_workflow_steps_flask(workflow_obj)
+            steps = extract_workflow_steps_flask(workflow_obj)
             assert steps == []
 
 
 class TestExtractSchemasFlask:
     """Test cases for Flask schema extraction functions."""
 
-    def test_extract_payload_schema_flask(self):
+    def testextract_payload_schema_flask(self):
         """Test payload schema extraction."""
         workflow_obj = Workflow("test-workflow", lambda: None)
-        schema = _extract_payload_schema_flask(workflow_obj)
+        schema = extract_payload_schema_flask(workflow_obj)
 
         assert schema["type"] == "object"
         assert schema["properties"] == {}
         assert schema["required"] == []
         assert schema["additionalProperties"] is False
 
-    def test_extract_controls_schema_flask(self):
+    def testextract_controls_schema_flask(self):
         """Test controls schema extraction."""
         workflow_obj = Workflow("test-workflow", lambda: None)
-        schema = _extract_controls_schema_flask(workflow_obj)
+        schema = extract_controls_schema_flask(workflow_obj)
 
         assert schema["type"] == "object"
         assert schema["properties"] == {}

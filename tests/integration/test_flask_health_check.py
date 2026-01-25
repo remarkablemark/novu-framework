@@ -70,7 +70,7 @@ class TestFlaskHealthCheckIntegration:
             assert data["discovered"]["workflows"] == 3
             assert data["discovered"]["steps"] >= 0
 
-    @patch("novu_framework.flask.count_steps_in_workflow")
+    @patch("novu_framework.common.count_steps_in_workflow")
     def test_health_check_step_counting(self, mock_count_steps):
         """Test health check accurately counts workflow steps."""
         mock_count_steps.return_value = 5
@@ -165,7 +165,7 @@ class TestFlaskHealthCheckIntegration:
         for response in responses[1:]:
             assert response == first_response
 
-    @patch("novu_framework.flask.count_steps_in_workflow")
+    @patch("novu_framework.common.count_steps_in_workflow")
     def test_health_check_error_handling(self, mock_count_steps):
         """Test health check handles errors gracefully."""
         mock_count_steps.side_effect = Exception("Test error")

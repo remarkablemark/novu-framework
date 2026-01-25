@@ -338,7 +338,7 @@ class TestFastAPIDiscoverIntegration:
         assert response.status_code == 200
         assert response.headers["content-type"] == "application/json"
 
-    @patch("novu_framework.fastapi.inspect.getsource")
+    @patch("novu_framework.common.inspect.getsource")
     def test_discover_source_extraction_error(self, mock_getsource):
         """Test discover endpoint handles source extraction errors."""
         mock_getsource.side_effect = OSError("Cannot get source")

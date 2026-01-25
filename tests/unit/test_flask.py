@@ -46,7 +46,7 @@ class TestServe:
         blueprint = app.blueprints["novu"]
         assert blueprint.url_prefix == "/custom/novu"
 
-    @patch("novu_framework.flask.count_steps_in_workflow")
+    @patch("novu_framework.common.count_steps_in_workflow")
     def test_health_check_endpoint(self, mock_count_steps):
         """Test health check endpoint functionality."""
         from flask import Flask
@@ -55,6 +55,7 @@ class TestServe:
         workflow = MagicMock(spec=Workflow)
         workflow.workflow_id = "test-workflow"
         workflow._workflow = workflow
+        workflow.handler = lambda payload: "test result"  # Add handler attribute
 
         mock_count_steps.return_value = 2
 
@@ -69,7 +70,7 @@ class TestServe:
             assert data["discovered"]["steps"] == 2
             mock_count_steps.assert_called_once()
 
-    @patch("novu_framework.flask.count_steps_in_workflow")
+    @patch("novu_framework.common.count_steps_in_workflow")
     def test_workflow_execution_endpoint(self, mock_count_steps):
         """Test workflow execution endpoint."""
         from flask import Flask
@@ -137,7 +138,7 @@ class TestServe:
             data = response.get_json()
             assert "detail" in data
 
-    @patch("novu_framework.flask.count_steps_in_workflow")
+    @patch("novu_framework.common.count_steps_in_workflow")
     def test_workflow_execution_internal_error(self, mock_count_steps):
         """Test workflow execution with internal error."""
         from flask import Flask

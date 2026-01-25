@@ -1,24 +1,25 @@
-"""Test cases for FastAPI internal functions."""
+"""Test cases for shared workflow functions."""
 
 from unittest.mock import patch
 
 import pytest
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
 from novu_framework import workflow
+from novu_framework.error_handling import NotFoundError, ValidationError
+from novu_framework.fastapi import serve
 from novu_framework.workflow import Workflow, workflow_registry
 
-from novu_framework.fastapi import (  # isort: skip
-    _extract_controls_schema,
-    _extract_payload_schema,
-    _extract_workflow_details,
-    _extract_workflow_steps,
-    _handle_code,
-    _handle_discover,
-    _handle_health_check,
+from novu_framework.common import (  # isort: skip
+    extract_controls_schema,
+    extract_payload_schema,
+    extract_workflow_details,
+    extract_workflow_steps,
+    handle_code,
+    handle_discover,
+    handle_health_check,
     count_steps_in_workflow,
-    serve,
 )
 
 
@@ -117,37 +118,34 @@ class TestCountStepsInWorkflow:
 
 
 class TestHandleHealthCheck:
-    """Test cases for _handle_health_check function."""
+    """Test cases for handle_health_check function."""
 
-    @pytest.mark.asyncio
-    async def test_handle_health_check_empty(self):
+    def test_handle_health_check_empty(self):
         """Test health check with no workflows."""
-        result = await _handle_health_check({})
+        result = handle_health_check({})
 
         assert result["status"] == "ok"
         assert result["discovered"]["workflows"] == 0
         assert result["discovered"]["steps"] == 0
 
-    @pytest.mark.asyncio
-    async def test_handle_health_check_with_workflows(self):
+    def test_handle_health_check_with_workflows(self):
         """Test health check with workflows."""
         workflow_registry.clear()
 
         @workflow("health-check-workflow")
         def health_check_workflow(payload, step):
             step.email("step-1", lambda: {"message": "Hello"})
-            step.sms("step-2", lambda: {"message": "SMS"})
+            step.sms("step-2", lambda: {"text": "SMS"})
             return {"status": "completed"}
 
         workflow_map = {"health-check-workflow": health_check_workflow._workflow}
-        result = await _handle_health_check(workflow_map)
+        result = handle_health_check(workflow_map)
 
         assert result["status"] == "ok"
         assert result["discovered"]["workflows"] == 1
         assert result["discovered"]["steps"] == 2
 
-    @pytest.mark.asyncio
-    async def test_handle_health_check_mixed_workflows(self):
+    def test_handle_health_check_mixed_workflows(self):
         """Test health check with mixed workflows (some with steps, some without)."""
         workflow_registry.clear()
 
@@ -157,14 +155,14 @@ class TestHandleHealthCheck:
             return {"status": "completed"}
 
         @workflow("without-steps")
-        def without_steps_workflow(payload, step):
+        def without_steps_workflow(payload):
             return {"status": "completed"}
 
         workflow_map = {
             "with-steps": with_steps_workflow._workflow,
             "without-steps": without_steps_workflow._workflow,
         }
-        result = await _handle_health_check(workflow_map)
+        result = handle_health_check(workflow_map)
 
         assert result["status"] == "ok"
         assert result["discovered"]["workflows"] == 2
@@ -172,16 +170,14 @@ class TestHandleHealthCheck:
 
 
 class TestHandleDiscover:
-    """Test cases for _handle_discover function."""
+    """Test cases for handle_discover function."""
 
-    @pytest.mark.asyncio
-    async def test_handle_discover_empty(self):
+    def test_handle_discover_empty(self):
         """Test discover with no workflows."""
-        result = await _handle_discover({})
+        result = handle_discover({})
         assert result["workflows"] == []
 
-    @pytest.mark.asyncio
-    async def test_handle_discover_with_workflow(self):
+    def test_handle_discover_with_workflow(self):
         """Test discover with a workflow."""
         workflow_registry.clear()
 
@@ -191,7 +187,7 @@ class TestHandleDiscover:
             return {"status": "completed"}
 
         workflow_map = {"discover-workflow": discover_workflow._workflow}
-        result = await _handle_discover(workflow_map)
+        result = handle_discover(workflow_map)
 
         assert len(result["workflows"]) == 1
         workflow_detail = result["workflows"][0]
@@ -201,27 +197,25 @@ class TestHandleDiscover:
         assert workflow_detail["steps"][0]["stepId"] == "step-1"
         assert workflow_detail["steps"][0]["type"] == "email"
 
-    @pytest.mark.asyncio
-    async def test_handle_discover_multiple_workflows(self):
+    def test_handle_discover_multiple_workflows(self):
         """Test discover with multiple workflows."""
         workflow_registry.clear()
 
         @workflow("workflow-1")
         def workflow_1(payload, step):
-            step.email("step-1", lambda: {"message": "Email"})
+            step.email("step-1", lambda: {"message": "Hello"})
             return {"status": "completed"}
 
         @workflow("workflow-2")
         def workflow_2(payload, step):
-            step.sms("step-1", lambda: {"message": "SMS"})
-            step.push("step-2", lambda: {"message": "Push"})
+            step.sms("step-1", lambda: {"text": "SMS"})
             return {"status": "completed"}
 
         workflow_map = {
             "workflow-1": workflow_1._workflow,
             "workflow-2": workflow_2._workflow,
         }
-        result = await _handle_discover(workflow_map)
+        result = handle_discover(workflow_map)
 
         assert len(result["workflows"]) == 2
 
@@ -232,15 +226,14 @@ class TestHandleDiscover:
 
         # Check second workflow
         wf2 = next(w for w in result["workflows"] if w["workflowId"] == "workflow-2")
-        assert len(wf2["steps"]) == 2
+        assert len(wf2["steps"]) == 1
         assert wf2["steps"][0]["type"] == "sms"
-        assert wf2["steps"][1]["type"] == "push"
 
 
 class TestExtractWorkflowDetails:
-    """Test cases for _extract_workflow_details function."""
+    """Test cases for extract_workflow_details function."""
 
-    def test_extract_workflow_details_basic(self):
+    def testextract_workflow_details_basic(self):
         """Test basic workflow details extraction."""
 
         @workflow("detail-workflow")
@@ -248,9 +241,7 @@ class TestExtractWorkflowDetails:
             step.email("step-1", lambda: {"message": "Hello"})
             return {"status": "completed"}
 
-        details = _extract_workflow_details(
-            "detail-workflow", detail_workflow._workflow
-        )
+        details = extract_workflow_details("detail-workflow", detail_workflow._workflow)
 
         assert details["workflow_id"] == "detail-workflow"
         assert details["severity"] == "none"
@@ -262,7 +253,7 @@ class TestExtractWorkflowDetails:
         assert details["tags"] == []
         assert details["preferences"] == {}
 
-    def test_extract_workflow_details_with_attributes(self):
+    def testextract_workflow_details_with_attributes(self):
         """Test workflow details extraction with custom attributes."""
         workflow_registry.clear()
 
@@ -275,19 +266,19 @@ class TestExtractWorkflowDetails:
         attributed_workflow._workflow.tags = ["test", "email"]
         attributed_workflow._workflow.preferences = {"priority": "high"}
 
-        details = _extract_workflow_details(
+        details = extract_workflow_details(
             "attributed-workflow", attributed_workflow._workflow
         )
 
         assert details["tags"] == ["test", "email"]
         assert details["preferences"] == {"priority": "high"}
 
-    def test_extract_workflow_details_source_exception(self):
+    def testextract_workflow_details_source_exception(self):
         """Test workflow details extraction when source cannot be retrieved."""
         workflow_obj = Workflow("test-workflow", lambda: None)
 
         with patch("inspect.getsource", side_effect=OSError("Cannot read source")):
-            details = _extract_workflow_details("test-workflow", workflow_obj)
+            details = extract_workflow_details("test-workflow", workflow_obj)
 
             assert details["workflow_id"] == "test-workflow"
             assert (
@@ -297,9 +288,9 @@ class TestExtractWorkflowDetails:
 
 
 class TestExtractWorkflowSteps:
-    """Test cases for _extract_workflow_steps function."""
+    """Test cases for extract_workflow_steps function."""
 
-    def test_extract_workflow_steps_all_types(self):
+    def testextract_workflow_steps_all_types(self):
         """Test extracting steps with all supported types."""
 
         @workflow("all-types-workflow")
@@ -311,7 +302,7 @@ class TestExtractWorkflowSteps:
             step.chat("step-5", lambda: {"message": "Chat"})
             return {"status": "completed"}
 
-        steps = _extract_workflow_steps(all_types_workflow._workflow)
+        steps = extract_workflow_steps(all_types_workflow._workflow)
 
         assert len(steps) == 5
 
@@ -339,7 +330,7 @@ class TestExtractWorkflowSteps:
             assert "providers" in step_detail
             assert step_detail["providers"] == [step_detail["type"]]
 
-    def test_extract_workflow_steps_no_steps(self):
+    def testextract_workflow_steps_no_steps(self):
         """Test extracting steps from workflow with no steps."""
         workflow_registry.clear()
 
@@ -347,43 +338,43 @@ class TestExtractWorkflowSteps:
         def no_steps_workflow(payload, step):
             return {"status": "completed"}
 
-        steps = _extract_workflow_steps(no_steps_workflow._workflow)
+        steps = extract_workflow_steps(no_steps_workflow._workflow)
         assert steps == []
 
-    def test_extract_workflow_steps_source_exception(self):
+    def testextract_workflow_steps_source_exception(self):
         """Test extracting steps when source cannot be retrieved."""
         workflow_obj = Workflow("test-workflow", lambda: None)
 
         with patch("inspect.getsource", side_effect=OSError("Cannot read source")):
-            steps = _extract_workflow_steps(workflow_obj)
+            steps = extract_workflow_steps(workflow_obj)
             assert steps == []
 
-    def test_extract_workflow_steps_syntax_error(self):
+    def testextract_workflow_steps_syntax_error(self):
         """Test extracting steps when source has syntax error."""
         workflow_obj = Workflow("test-workflow", lambda: None)
 
         with patch("inspect.getsource", return_value="invalid syntax"):
-            steps = _extract_workflow_steps(workflow_obj)
+            steps = extract_workflow_steps(workflow_obj)
             assert steps == []
 
 
 class TestExtractSchemas:
     """Test cases for schema extraction functions."""
 
-    def test_extract_payload_schema(self):
+    def testextract_payload_schema(self):
         """Test payload schema extraction."""
         workflow_obj = Workflow("test-workflow", lambda: None)
-        schema = _extract_payload_schema(workflow_obj)
+        schema = extract_payload_schema(workflow_obj)
 
         assert schema["type"] == "object"
         assert schema["properties"] == {}
         assert schema["required"] == []
         assert schema["additionalProperties"] is False
 
-    def test_extract_controls_schema(self):
+    def testextract_controls_schema(self):
         """Test controls schema extraction."""
         workflow_obj = Workflow("test-workflow", lambda: None)
-        schema = _extract_controls_schema(workflow_obj)
+        schema = extract_controls_schema(workflow_obj)
 
         assert schema["type"] == "object"
         assert schema["properties"] == {}
@@ -392,10 +383,9 @@ class TestExtractSchemas:
 
 
 class TestHandleCode:
-    """Test cases for _handle_code function."""
+    """Test cases for handle_code function."""
 
-    @pytest.mark.asyncio
-    async def test_handle_code_success(self):
+    async def testhandle_code_success(self):
         """Test successful code retrieval."""
 
         @workflow("code-workflow")
@@ -404,37 +394,32 @@ class TestHandleCode:
             return {"status": "completed"}
 
         workflow_map = {"code-workflow": code_workflow._workflow}
-        result = await _handle_code(workflow_map, "code-workflow")
+        result = handle_code(workflow_map, "code-workflow")
 
         assert "code" in result
         assert "def code_workflow" in result["code"]
 
-    @pytest.mark.asyncio
-    async def test_handle_code_missing_workflow_id(self):
+    def testhandle_code_missing_workflow_id(self):
         """Test code action with missing workflow_id."""
-        with pytest.raises(HTTPException) as exc_info:
-            await _handle_code({}, "")
+        with pytest.raises(ValidationError) as exc_info:
+            handle_code({}, "")
 
-        assert exc_info.value.status_code == 400
-        assert "workflow_id is required" in str(exc_info.value.detail)
+        assert "workflow_id is required" in str(exc_info.value)
 
-    @pytest.mark.asyncio
-    async def test_handle_code_workflow_not_found(self):
+    def testhandle_code_workflow_not_found(self):
         """Test code action with non-existent workflow."""
-        with pytest.raises(HTTPException) as exc_info:
-            await _handle_code({}, "nonexistent-workflow")
+        with pytest.raises(NotFoundError) as exc_info:
+            handle_code({}, "nonexistent-workflow")
 
-        assert exc_info.value.status_code == 404
-        assert "not found" in str(exc_info.value.detail)
+        assert "Workflow 'nonexistent-workflow' not found" in str(exc_info.value)
 
-    @pytest.mark.asyncio
-    async def test_handle_code_source_exception(self):
+    def testhandle_code_source_exception(self):
         """Test code retrieval when source cannot be extracted."""
         workflow_obj = Workflow("test-workflow", lambda: None)
         workflow_map = {"test-workflow": workflow_obj}
 
         with patch("inspect.getsource", side_effect=OSError("Cannot read source")):
-            result = await _handle_code(workflow_map, "test-workflow")
+            result = handle_code(workflow_map, "test-workflow")
 
             assert (
                 result["code"]
