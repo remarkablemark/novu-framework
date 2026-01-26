@@ -60,7 +60,7 @@ lint = [
     "ruff==0.14.14",
 ]
 test = [
-    "coverage==7.13.1",
+    "coverage==7.13.2",
     "fastapi==0.128.0",
     "flask[async]==3.0.0",
     "httpx==0.28.1",
