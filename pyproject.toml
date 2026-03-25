@@ -44,7 +44,7 @@ dependencies = [
 
 [project.optional-dependencies]
 build = [
-    "build==1.4.0",
+    "build==1.4.2",
     "twine==6.2.0",
 ]
 docs = [
