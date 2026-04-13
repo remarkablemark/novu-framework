@@ -39,7 +39,7 @@ keywords = [
     "workflows",
 ]
 dependencies = [
-    "pydantic>=2.0.0",
+    "pydantic>=2.13.0",
 ]
 
 [project.optional-dependencies]
